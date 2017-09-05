@@ -37,7 +37,7 @@ $shop = set_medias(
 );
 
 $_W['shopshare'] = array(
-    'title' => '成为分销商',
+    'title' => '邀请成为分销商',
     'imgUrl' => $shop['logo'],
     'desc' => $member['nickname'].'真诚邀请您加入',
     'link' => $this->createPluginMobileUrl('commission/register')
