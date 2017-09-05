@@ -10,13 +10,13 @@ $set     = m("common")->getSysset(array(
 ));
 $member  = m("member")->getMember($openid);
 $uniacid = $_W["uniacid"];
-$hascom  = false;
+$hascom  = false; //是否有人人分销的插件
 $plugc   = p("commission");
 if ($plugc) {
     $pset = $plugc->getSet();
     if (!empty($pset["level"])) {
         if ($member["isagent"] == 1 && $member["status"] == 1) {
-            $hascom = true;
+            $hascom = true;  //代理商显示人人分销插件
         }
     }
 }
@@ -90,4 +90,3 @@ if ($_W["isajax"]) {
     ));
 }
 include $this->template("member/center");
-?>

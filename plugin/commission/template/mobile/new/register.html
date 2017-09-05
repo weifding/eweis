@@ -83,7 +83,8 @@ a{ text-decoration: none;}
     <div class="ok">
     <div class="ico"><i class="fa fa-check"></i></div>
       <%if member.status=='1'%>
-        <div class="text">您的分销申请已经审核通过！</div>
+        <div class="text">您已经成为分销商，你可以继续邀请他人成为分销商，享受更多佣金分成！</div>
+        <div class="text">点击右上角分享本页面，邀请更多人成为分销商。</div>
         <a href="{php echo $this->createPluginMobileUrl('commission/myshop')}"><div class="sub">进入我的小店</div></a>
       <%else%>
          <div class="text">您的分销申请已经提交，请等待审核！</div>

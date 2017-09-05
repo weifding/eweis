@@ -1051,23 +1051,24 @@ if (!class_exists('CommissionModel')){
             }
             $this -> upgradeLevelByOrder($openid);
         }
-        function getShop($weizan_133){
+        function getShop($mid){
             global $_W;
-            $member = m('member') -> getMember($weizan_133);
+            $member = m('member') -> getMember($mid);
             $weizan_134 = pdo_fetch('select * from ' . tablename('ewei_shop_commission_shop') . ' where uniacid=:uniacid and mid=:mid limit 1' , array(':uniacid' => $_W['uniacid'], ':mid' => $member['id']));
-            $weizan_135 = m('common') -> getSysset(array('shop', 'share'));
-            $commission_config = $weizan_135['shop'];
-            $weizan_136 = $weizan_135['share'];
+            $sys_config = m('common') -> getSysset(array('shop', 'share'));
+
+            $shop_config = $sys_config['shop'];
+            $weizan_136 = $sys_config['share'];
             $weizan_137 = $weizan_136['desc'];
             if (empty($weizan_137)){
-                $weizan_137 = $commission_config['description'];
+                $weizan_137 = $shop_config['description'];
             }
             if (empty($weizan_137)){
-                $weizan_137 = $commission_config['name'];
+                $weizan_137 = $shop_config['name'];
             }
             $weizan_138 = $this -> getSet();
             if (empty($weizan_134)){
-                $weizan_134 = array('name' => $member['nickname'] . '的' . $weizan_138['texts']['shop'], 'logo' => $member['avatar'], 'desc' => $weizan_137, 'img' => tomedia($commission_config['img']),);
+                $weizan_134 = array('name' => $member['nickname'] . '的' . $weizan_138['texts']['shop'], 'logo' => $member['avatar'], 'desc' => $weizan_137, 'img' => tomedia($shop_config['img']),);
             }else{
                 if (empty($weizan_134['name'])){
                     $weizan_134['name'] = $member['nickname'] . '的' . $weizan_138['texts']['shop'];
@@ -1076,7 +1077,7 @@ if (!class_exists('CommissionModel')){
                     $weizan_134['logo'] = tomedia($member['avatar']);
                 }
                 if (empty($weizan_134['img'])){
-                    $weizan_134['img'] = tomedia($commission_config['img']);
+                    $weizan_134['img'] = tomedia($shop_config['img']);
                 }
                 if (empty($weizan_134['desc'])){
                     $weizan_134['desc'] = $weizan_137;

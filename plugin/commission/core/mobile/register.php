@@ -4,17 +4,17 @@ $openid   = m("user")->getOpenid();
 $shop_set = m("common")->getSysset("shop");
 $set      = set_medias($this->set, "regbg");
 $member   = m("member")->getMember($openid);
-if ($member["isagent"] == 1 && $member["status"] == 1) {
-    header("location: " . $this->createPluginMobileUrl("commission"));
-    exit;
-}
+//if ($member["isagent"] == 1 && $member["status"] == 1) {
+ //   header("location: " . $this->createPluginMobileUrl("commission"));
+ //   exit;
+//}
 if (empty($set["become"])) {
 }
 $template_flag  = 0;
 $diyform_plugin = p("diyform");
 if ($diyform_plugin) {
     $set_config              = $diyform_plugin->getSet();
-    $commission_diyform_open = $set_config["commission_diyform_open"];
+    $commission_diyform_open = $set_config["ç_diyform_open"];
     if ($commission_diyform_open == 1) {
         $template_flag = 1;
         $diyform_id    = $set_config["commission_diyform"];
@@ -27,6 +27,22 @@ if ($diyform_plugin) {
     }
 }
 $mid = intval($_GPC["mid"]);
+
+$shop = set_medias(
+    $this->model->getShop($mid),
+    array(
+    'img',
+    'logo'
+    )
+);
+
+$_W['shopshare'] = array(
+    'title' => '成为分销商',
+    'imgUrl' => $shop['logo'],
+    'desc' => $member['nickname'].'真诚邀请您加入',
+    'link' => $this->createPluginMobileUrl('commission/register')
+);
+
 if ($_W["isajax"]) {
     $agent = false;
     if (!empty($member["fixagentid"])) {
@@ -140,9 +156,11 @@ if ($_W["isajax"]) {
             $this->model->upgradeLevelByAgent($member["id"]);
         }
     }
+
+    //提交数据判断
     if ($_W["ispost"]) {
         if ($member["isagent"] == 1 && $member["status"] == 1) {
-            show_json(0, "您已经是" . $set["texts"]["become"] . "，无需再次申请!");
+            show_json(0, "您已经是" . $set["texts"]["become"] . "，请把当前页面发给被邀请者，邀请成为分销商!");
         }
         if ($ret["status"] == 1 || $ret["status"] == 2) {
             show_json(0, "您消费的还不够哦，无法申请" . $set["texts"]["become"] . "!");
