@@ -32,7 +32,7 @@
 {if $total>0}
 <div class="team_tab">
     <div class="team_nav team_navon" data-level='1'  style='width:{$tabwidth}%'>一级({$level1})</div>
-    {if $this->set['level']>=2}<div class="team_nav" data-level='2'  style='width:{$tabwidth}%'>二级({$level2})</div>{/if}
+    {if $this->set['level']>=2}<div class="team_nav" data-level='2'  style='width:{$tabwidth}%'>专属用户({$my_users})</div>{/if}
     {if $this->set['level']>=3}<div class="team_nav" data-level='3'  style='width:{$tabwidth}%'>三级({$level3})</div>{/if}
 </div>
 {/if}
@@ -52,8 +52,21 @@
     </div>
     <%/each%>
 </script>
+<script id='tpl_team1' type='text/html'>
+    <div class="team_list_head">
+        <div class="info">成员信息</div>
+        <div class="num"></div>
+    </div>
+    <%each list as user%>
+    <div class="team_list">
+        <div class="img"><img src="<%user.avatar%>" height="40"></div>
+        <div class="info"><%user.nickname%><br><span><%user.agenttime%></span></div>
+        <div class="num"><br><span></span></div>
+    </div>
+    <%/each%>
+</script>
 <script id='tpl_empty' type='text/html'>
-    <div class="team_no"><i class="fa fa-users" style="font-size:100px;"></i><br><span style="line-height:18px; font-size:16px;">您还没有相关分销团队成员~</span></div>
+    <div class="team_no"><i class="fa fa-users" style="font-size:100px;"></i><br><span style="line-height:18px; font-size:16px;">您还没有团队成员~</span></div>
 </script>
 
 <script language="javascript">
@@ -102,7 +115,14 @@ function bindScroller(){
                     $('#container').html(tpl('tpl_empty'));
                     return;
                 }
-                $('#container').html(tpl('tpl_team', json.result));
+                if(level==1)
+                {
+                    $('#container').html(tpl('tpl_team', json.result));
+                }
+                if(level==2)
+                {
+                    $('#container').html(tpl('tpl_team1', json.result));
+                }
                 bindScroller();
             }, true);
         }

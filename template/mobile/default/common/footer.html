@@ -1,3 +1,25 @@
+<div style='display:none'>
+	{php echo $member['isagent']}
+	{php echo $this->footer['commission']}
+	{if $this->footer['commission'] }
+	if commission;
+	{/if}
+	{if $member['isagent']==1 }
+	if isagent;
+	{/if}
+	
+	{if $this->footer['commission'] && $member['isagent'] == 1}
+	commission + isagent
+	{php echo $this->footer['commission']['url']}
+	{/if}
+	
+	</div>
+	{if $this->footer['commission']}
+	{php  $mymember  = m('member')->getMember($openid)}
+	{php  $isagent = $mymember['isagent']}
+	{/if}
+
+
 {if $show_footer}
 
 	{if $this->footer['diymenu']}
@@ -7,18 +29,23 @@
 
 	{else}
 		<style type="text/css">
-			{if $this->footer['commission']}
-			footer#footer-nav .menu-list li { width:20%} 
-			{/if} 
+			
+				{if $this->footer['commission'] and false}
+				footer#footer-nav .menu-list li { width:20%} 
+				{/if}
+		
 		</style>
 
 		<footer id="footer-nav" style="display: none">
 						<ul class="menu-list" style="margin:0;">
 							<li {if $footer_current=='first'}class='active'{/if}><a href="{php echo $this->footer['first']['url']}"><i class="fa fa-{php echo $this->footer['first']['ico']}"></i><span>{php echo $this->footer['first']['text']}</span></a></li>
 							<li {if $footer_current=='second'}class='active'{/if}><a href="{php echo $this->footer['second']['url']}"><i class="fa fa-{php echo $this->footer['second']['ico']}"></i><span>{php echo $this->footer['second']['text']}</span></a></li>
-						{if $this->footer['commission']}
-							<li {if $footer_current=='commission'}class='active'{/if}><a href="{php echo $this->footer['commission']['url']}"><i class="fa fa-{php echo $this->footer['commission']['ico']}"></i><span>{php echo $this->footer['commission']['text']}</span></a></li>
-						 {/if} 
+							{if false}
+							{if $this->footer['commission']}
+								<li {if $footer_current=='commission'}class='active'{/if}><a href="{php echo $this->footer['commission']['url']}"><i class="fa fa-{php echo $this->footer['commission']['ico']}"></i><span>{php echo $this->footer['commission']['text']}</span></a></li>
+							 {/if}
+							 {/if}
+						
 							<li {if $footer_current=='cart'}class='active'{/if}><a href="{php echo $this->createMobileUrl('shop/cart')}"><i class="fa fa-shopping-cart"></i><span>购物车</span></a></li>
 							<li {if $footer_current=='member'}class='active'{/if}><a href="{php echo $this->createMobileUrl('member')}"><i class="fa fa-user"></i><span>会员中心</span></a></li>
 						</ul>

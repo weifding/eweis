@@ -1,12 +1,14 @@
 <?php
 
-
 global $_W, $_GPC;
 $mid     = intval($_GPC['mid']);
 $openid  = m('user')->getOpenid();
 $member  = m('member')->getMember($openid);
 $set     = $this->set;
 $uniacid = $_W['uniacid'];
+
+
+
 if (!empty($mid)) {
     if (!$this->model->isAgent($mid)) {
         header('location: ' . $this->createMobileUrl('shop'));
@@ -15,30 +17,44 @@ if (!empty($mid)) {
     if ($mid != $member['id']) {
         if ($member['isagent'] == 1 && $member['status'] == 1) {
             if (!empty($set['closemyshop'])) {
-                $shopurl = $this->createMobileUrl('shop', array(
+                //关闭个人小店功能
+                $shopurl = $this->createMobileUrl(
+                    'shop',
+                    array(
                     'mid' => $member['id']
-                ));
+                        )
+                );
             } else {
-                $shopurl = $this->createPluginMobileUrl('commission/myshop', array(
+                //显示个人小店
+                $shopurl = $this->createPluginMobileUrl(
+                    'commission/myshop',
+                    array(
                     'mid' => $member['id']
-                ));
+                    )
+                );
             }
             header('location: ' . $shopurl);
             exit;
         } else {
             if (!empty($set['closemyshop'])) {
-                $shopurl = $this->createMobileUrl('shop', array(
+                $shopurl = $this->createMobileUrl(
+                    'shop',
+                    array(
                     'mid' => $mid
-                ));
+                    )
+                );
                 header('location: ' . $shopurl);
                 exit;
             }
         }
     } else {
         if (!empty($set['closemyshop'])) {
-            $shopurl = $this->createMobileUrl('shop', array(
+            $shopurl = $this->createMobileUrl(
+                'shop',
+                array(
                 'mid' => $member['id']
-            ));
+                )
+            );
             header('location: ' . $shopurl);
             exit;
         }
@@ -56,23 +72,33 @@ if (!empty($mid)) {
         exit;
     }
 }
-$shop = set_medias($this->model->getShop($mid), array(
+$shop = set_medias(
+    $this->model->getShop($mid),
+    array(
     'img',
     'logo'
-));
+    )
+);
+
 $op   = empty($_GPC['op']) ? 'display' : $_GPC['op'];
 if ($op == 'display') {
     if ($_W['isajax']) {
         if (empty($shop['selectgoods'])) {
-            $goodscount = pdo_fetchcolumn('select count(*) from ' . tablename('ewei_shop_goods') . ' where uniacid=:uniacid and status=1 and deleted=0', array(
+            $goodscount = pdo_fetchcolumn(
+                'select count(*) from ' . tablename('ewei_shop_goods') . ' where uniacid=:uniacid and status=1 and deleted=0',
+                array(
                 ':uniacid' => $_W['uniacid']
-            ));
+                )
+            );
         } else {
             $goodscount = count(explode(",", $shop['goodsids']));
         }
-        $advs        = pdo_fetchall("select id,advname,link,thumb from " . tablename('ewei_shop_adv') . ' where uniacid=:uniacid and enabled=1 order by displayorder desc', array(
+        $advs = pdo_fetchall(
+            "select id,advname,link,thumb from " . tablename('ewei_shop_adv') . ' where uniacid=:uniacid and enabled=1 order by displayorder desc',
+            array(
             ':uniacid' => $uniacid
-        ));
+            )
+        );
         $advs        = set_medias($advs, 'thumb');
         $ret         = array(
             'shop' => $shop,
@@ -96,14 +122,14 @@ if ($op == 'display') {
         if (empty($this->set['become_reg']) && (empty($member['realname']) || empty($member['mobile']))) {
             $trigger = true;
         }
-    } else if (!empty($mid)) {
+    } elseif (!empty($mid)) {
         $_W['shopshare']['link'] = $this->createPluginMobileUrl('commission/myshop', array(
             'mid' => $_GPC['mid']
         ));
     }
     $this->setHeader();
     include $this->template('myshop');
-} else if ($op == 'goods') {
+} elseif ($op == 'goods') {
     if ($_W['isajax']) {
         $args = array(
             'page' => $_GPC['page'],
@@ -124,7 +150,7 @@ if ($op == 'display') {
             'pagesize' => $args['pagesize']
         ));
     }
-} else if ($op == 'set') {
+} elseif ($op == 'set') {
     if ($_W['isajax']) {
         if ($_W['ispost']) {
             $shopdata            = is_array($_GPC['shopdata']) ? $_GPC['shopdata'] : array();
@@ -163,7 +189,7 @@ if ($op == 'display') {
         ));
     }
     include $this->template('myshop_set');
-} else if ($op == 'select') {
+} elseif ($op == 'select') {
     if ($_W['isajax']) {
         if ($member['agentselectgoods'] == 1) {
             show_json(-1, '您无权自选商品，请和运营商联系!');

@@ -1,16 +1,15 @@
 <?php
 global $_W, $_GPC;
-$mid       = intval($_GPC["mid"]);  //系统中商店用户ID
-$openid    = m("user")->getOpenid();  //当前用户的OpenID
+$mid       = intval($_GPC["mid"]);
+$openid    = m("user")->getOpenid();
 $member    = m("member")->getMember($openid);
 $shop_set  = set_medias(m("common")->getSysset("shop"), "logo");
 $share_set = set_medias(m("common")->getSysset("share"), "icon");
-$can       = false; //谁能访问当前页面
+$can       = false;
 if ($member["isagent"] == 1 && $member["status"] == 1) {
-    $can = true;  //代理商用户
+    $can = true;
 }
 if (!$can) {
-    //非代理商用户，跳转到代理商申请页面
     header("location: " . $this->createPluginMobileUrl("commission/register"));
     exit;
 }
@@ -31,7 +30,6 @@ if (empty($infourl)) {
     $share_goods = false;
     $share       = array();
     $goodsid     = intval($_GPC["goodsid"]);
-    //分享商品链接
     if (!empty($goodsid)) {
         $goods = pdo_fetch("select * from " . tablename("ewei_shop_goods") . " where uniacid=:uniacid and id=:id limit 1", array(
             ":uniacid" => $_W["uniacid"],
@@ -52,7 +50,6 @@ if (empty($infourl)) {
             );
         }
     }
-    //分享商店链接
     if (!$share_goods) {
         if (!empty($_GPC["mid"])) {
             if (empty($set["closemyshop"])) {
