@@ -20,17 +20,13 @@ if (!empty($mid)) {
                 //关闭个人小店功能
                 $shopurl = $this->createMobileUrl(
                     'shop',
-                    array(
-                    'mid' => $member['id']
-                        )
+                    array('mid' => $member['id'])
                 );
             } else {
                 //显示个人小店
                 $shopurl = $this->createPluginMobileUrl(
                     'commission/myshop',
-                    array(
-                    'mid' => $member['id']
-                    )
+                    array('mid' => $member['id'])
                 );
             }
             header('location: ' . $shopurl);
@@ -39,9 +35,7 @@ if (!empty($mid)) {
             if (!empty($set['closemyshop'])) {
                 $shopurl = $this->createMobileUrl(
                     'shop',
-                    array(
-                    'mid' => $mid
-                    )
+                    array('mid' => $mid)
                 );
                 header('location: ' . $shopurl);
                 exit;
@@ -51,9 +45,7 @@ if (!empty($mid)) {
         if (!empty($set['closemyshop'])) {
             $shopurl = $this->createMobileUrl(
                 'shop',
-                array(
-                'mid' => $member['id']
-                )
+                array('mid' => $member['id'])
             );
             header('location: ' . $shopurl);
             exit;

@@ -861,6 +861,7 @@ if (!class_exists('CommissionModel')) {
                     }
                 }
             }
+            //分销内购
             $isagentself = false;
             if ($member['isagent'] == 1 && $member['status'] == 1) {
                 if (!empty($set['selfbuy'])) {
@@ -1186,6 +1187,8 @@ if (!class_exists('CommissionModel')) {
                 ));
             }
         }
+
+        //获取佣金分配等级
         function getLevel($openid)
         {
             global $_W;
