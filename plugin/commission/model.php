@@ -506,10 +506,10 @@ if (!class_exists('CommissionModel')){
             $member['agenttime'] = date('Y-m-d H:i', $member['agenttime']);
             return $member;
         }
-        public function getAgents($weizan_2 = 0){
+        public function getAgents($mid = 0){
             global $_W, $_GPC;
             $weizan_77 = array();
-            $weizan_78 = pdo_fetch('select id,agentid,openid from ' . tablename('ewei_shop_order') . ' where id=:id and uniacid=:uniacid limit 1' , array(':id' => $weizan_2, ':uniacid' => $_W['uniacid']));
+            $weizan_78 = pdo_fetch('select id,agentid,openid from ' . tablename('ewei_shop_order') . ' where id=:id and uniacid=:uniacid limit 1' , array(':id' => $mid, ':uniacid' => $_W['uniacid']));
             if (empty($weizan_78)){
                 return $weizan_77;
             }
@@ -1266,6 +1266,36 @@ if (!class_exists('CommissionModel')){
                 }
             }
         }
+
+        function getAgentLinkLV($member_info){
+            $lv = 0;
+            $agent_lists = array();
+            if (!empty($member_info['agentid'])){
+                $up_agent = m('member') -> getMember($member_info['agentid']);
+                if (!empty($up_agent)){
+                    $agent_lists[] = $up_agent;
+                    if (!empty($up_agent['agentid']) && $up_agent['isagent'] == 1 && $up_agent['status'] == 1){
+                        $super_agent = m('member') -> getMember($up_agent['agentid']);
+                        if (!empty($super_agent) && $super_agent['isagent'] == 1 && $super_agent['status'] == 1){
+                            $agent_lists[] = $super_agent;
+                            if (!empty($super_agent['agentid']) && $super_agent['isagent'] == 1 && $super_agent['status'] == 1){
+                                $top_agent = m('member') -> getMember($super_agent['agentid']);
+                                if (!empty($top_agent) && $top_agent['isagent'] == 1 && $top_agent['status'] == 1){
+                                    $agent_lists[] = $top_agent;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (empty($agent_lists)){
+                return 0;
+            }
+            return count($agent_lists);
+
+            
+        }
+
 
         function upgradeLevelByAgent($openid){
             global $_W;

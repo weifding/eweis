@@ -7,46 +7,65 @@ $member  = m('member')->getMember($openid);
 $set     = $this->set;
 $uniacid = $_W['uniacid'];
 
+$shop_url = '';
+
+if(!empty($mid)){
+    $agent_link_lv = $this->model->getAgentLinkLV($member);
+    //默认显示特定代理商的小店
+    $shop_url = $this->createMobileUrl('shop',array('mid' => $mid));
+
+    //代理层小于1
+    if($agent_link_lv<1){
+        //显示个人小店
+        if (empty($set['closemyshop'])) {
+            $shop_url = $this->createPluginMobileUrl('commission/myshop',array('mid' => $member['id']));
+        }
+    }
+    else
+    {
+        if ($mid != $member['id']) {
+            $shop_url = $this->createMobileUrl('shop',array('mid' => $member['id']));
+        }
+    }
+    header('location: ' . $shop_url);
+    exit;
+}
+else{
+    header('location: ' . $this->createMobileUrl('shop'));
+    exit;
+}
 
 
-if (!empty($mid)) {
+
+/* if (!empty($mid)) {
+    //mid有值
+    //这代码似乎没用啊。
     if (!$this->model->isAgent($mid)) {
-        header('location: ' . $this->createMobileUrl('shop'));
+        //普通用户，跳转到总店
+        header('location: ' . $this->createMobileUrl('shop'));  
         exit;
     }
     if ($mid != $member['id']) {
         if ($member['isagent'] == 1 && $member['status'] == 1) {
             if (!empty($set['closemyshop'])) {
                 //关闭个人小店功能
-                $shopurl = $this->createMobileUrl(
-                    'shop',
-                    array('mid' => $member['id'])
-                );
+                $shopurl = $this->createMobileUrl('shop',array('mid' => $member['id']));
             } else {
                 //显示个人小店
-                $shopurl = $this->createPluginMobileUrl(
-                    'commission/myshop',
-                    array('mid' => $member['id'])
-                );
+                $shopurl = $this->createPluginMobileUrl('commission/myshop',array('mid' => $member['id']));
             }
             header('location: ' . $shopurl);
             exit;
         } else {
             if (!empty($set['closemyshop'])) {
-                $shopurl = $this->createMobileUrl(
-                    'shop',
-                    array('mid' => $mid)
-                );
+                $shopurl = $this->createMobileUrl('shop',array('mid' => $mid));
                 header('location: ' . $shopurl);
                 exit;
             }
         }
     } else {
         if (!empty($set['closemyshop'])) {
-            $shopurl = $this->createMobileUrl(
-                'shop',
-                array('mid' => $member['id'])
-            );
+            $shopurl = $this->createMobileUrl('shop',array('mid' => $member['id']));
             header('location: ' . $shopurl);
             exit;
         }
@@ -63,7 +82,7 @@ if (!empty($mid)) {
         header('location: ' . $this->createMobileUrl('shop'));
         exit;
     }
-}
+} */
 $shop = set_medias(
     $this->model->getShop($mid),
     array(
