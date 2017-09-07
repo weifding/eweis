@@ -821,6 +821,7 @@ if (!class_exists('CommissionModel')){
             if (empty($member)){
                 return;
             }
+            //自动成为下级
             $weizan_124 = intval($commission_config['become_child']);
             $weizan_118 = false;
             if (empty($weizan_124)){
@@ -843,17 +844,22 @@ if (!class_exists('CommissionModel')){
                     }
                 }
             }
-            $weizan_5 = $member['agentid'];
+
+           
+            $agentid = $member['agentid'];
             if ($member['isagent'] == 1 && $member['status'] == 1){
                 if (!empty($commission_config['selfbuy'])){
-                    $weizan_5 = $member['id'];
+                     //分销内购
+                    $agentid = $member['id'];
                 }
             }
-            if (!empty($weizan_5)){
-                pdo_update('ewei_shop_order', array('agentid' => $weizan_5), array('id' => $weizan_2));
+            if (!empty($agentid)){
+                pdo_update('ewei_shop_order', array('agentid' => $agentid), array('id' => $weizan_2));
             }
             $this -> calculate($weizan_2);
         }
+
+
         public function checkOrderPay($weizan_2 = '0'){
             global $_W, $_GPC;
             if (empty($weizan_2)){
@@ -1105,6 +1111,7 @@ if (!class_exists('CommissionModel')){
             $commission_config_max_level = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . ' where uniacid=:uniacid and id=:id limit 1', array(':uniacid' => $_W['uniacid'], ':id' => $member['agentlevel']));
             return $commission_config_max_level;
         }
+        
         function upgradeLevelByOrder($openid){
             global $_W;
             if (empty($openid)){
@@ -1114,69 +1121,70 @@ if (!class_exists('CommissionModel')){
             if (empty($commission_config['level'])){
                 return false;
             }
-            $weizan_133 = m('member') -> getMember($openid);
-            if (empty($weizan_133)){
+            $member_info = m('member') -> getMember($openid);
+            if (empty($member_info)){
                 return;
             }
-            $weizan_140 = intval($commission_config['leveltype']);
-            if ($weizan_140 == 4 || $weizan_140 == 5){
-                if (!empty($weizan_133['agentnotupgrade'])){
+            $level_type = intval($commission_config['leveltype']);
+            if ($level_type == 4 || $level_type == 5){
+                if (!empty($member_info['agentnotupgrade'])){
                     return;
                 }
-                $weizan_141 = $this -> getLevel($weizan_133['openid']);
-                if (empty($weizan_141['id'])){
-                    $weizan_141 = array('levelname' => empty($commission_config['levelname']) ? '普通等级' : $commission_config['levelname'], 'commission1' => $commission_config['commission1'], 'commission2' => $commission_config['commission2'], 'commission3' => $commission_config['commission3']);
+                $member_level_info = $this -> getLevel($member_info['openid']);
+                if (empty($member_level_info['id'])){
+                    $member_level_info = array('levelname' => empty($commission_config['levelname']) ? '普通等级' : $commission_config['levelname'], 'commission1' => $commission_config['commission1'], 'commission2' => $commission_config['commission2'], 'commission3' => $commission_config['commission3']);
                 }
-                $weizan_142 = pdo_fetch('select sum(og.realprice) as ordermoney,count(distinct og.orderid) as ordercount from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . ' where o.openid=:openid and o.status>=3 and o.uniacid=:uniacid limit 1', array(':uniacid' => $_W['uniacid'], ':openid' => $openid));
-                $weizan_31 = $weizan_142['ordermoney'];
-                $weizan_30 = $weizan_142['ordercount'];
-                if ($weizan_140 == 4){
-                    $weizan_143 = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid  and {$weizan_31} >= ordermoney and ordermoney>0  order by ordermoney desc limit 1", array(':uniacid' => $_W['uniacid']));
-                    if (empty($weizan_143)){
+                $order_counts = pdo_fetch('select sum(og.realprice) as ordermoney,count(distinct og.orderid) as ordercount from ' . tablename('ewei_shop_order') . ' o ' . ' left join  ' . tablename('ewei_shop_order_goods') . ' og on og.orderid=o.id ' . ' where o.openid=:openid and o.status>=3 and o.uniacid=:uniacid limit 1', array(':uniacid' => $_W['uniacid'], ':openid' => $openid));
+                $order_money = $order_counts['ordermoney'];
+                $ordercount = $order_counts['ordercount'];
+                if ($level_type == 4){
+                    $comm_level_info = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid  and {$order_money} >= ordermoney and ordermoney>0  order by ordermoney desc limit 1", array(':uniacid' => $_W['uniacid']));
+                    if (empty($comm_level_info)){
                         return;
                     }
-                    if (!empty($weizan_141['id'])){
-                        if ($weizan_141['id'] == $weizan_143['id']){
+                    if (!empty($member_level_info['id'])){
+                        if ($member_level_info['id'] == $comm_level_info['id']){
                             return;
                         }
-                        if ($weizan_141['ordermoney'] > $weizan_143['ordermoney']){
+                        if ($member_level_info['ordermoney'] > $comm_level_info['ordermoney']){
                             return;
                         }
                     }
-                }else if ($weizan_140 == 5){
-                    $weizan_143 = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid  and {$weizan_30} >= ordercount and ordercount>0  order by ordercount desc limit 1", array(':uniacid' => $_W['uniacid']));
-                    if (empty($weizan_143)){
+                }else if ($level_type == 5){
+                    $comm_level_info = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid  and {$ordercount} >= ordercount and ordercount>0  order by ordercount desc limit 1", array(':uniacid' => $_W['uniacid']));
+                    if (empty($comm_level_info)){
                         return;
                     }
-                    if (!empty($weizan_141['id'])){
-                        if ($weizan_141['id'] == $weizan_143['id']){
+                    if (!empty($member_level_info['id'])){
+                        if ($member_level_info['id'] == $comm_level_info['id']){
                             return;
                         }
-                        if ($weizan_141['ordercount'] > $weizan_143['ordercount']){
+                        if ($member_level_info['ordercount'] > $comm_level_info['ordercount']){
                             return;
                         }
                     }
                 }
-                pdo_update('ewei_shop_member', array('agentlevel' => $weizan_143['id']), array('id' => $weizan_133['id']));
-                $this -> sendMessage($weizan_133['openid'], array('nickname' => $weizan_133['nickname'], 'oldlevel' => $weizan_141, 'newlevel' => $weizan_143,), TM_COMMISSION_UPGRADE);
-            }else if ($weizan_140 >= 0 && $weizan_140 <= 3){
-                $weizan_77 = array();
+                pdo_update('ewei_shop_member', array('agentlevel' => $comm_level_info['id']), array('id' => $member_info['id']));
+                $this -> sendMessage($member_info['openid'], array('nickname' => $member_info['nickname'], 'oldlevel' => $member_level_info, 'newlevel' => $comm_level_info,), TM_COMMISSION_UPGRADE);
+            }else if ($level_type >= 0 && $level_type <= 3){
+                $agent_info = array();
                 if (!empty($commission_config['selfbuy'])){
-                    $weizan_77[] = $weizan_133;
+                    $agent_info[] = $member_info;
                 }
-                if (!empty($weizan_133['agentid'])){
-                    $weizan_11 = m('member') -> getMember($weizan_133['agentid']);
-                    if (!empty($weizan_11)){
-                        $weizan_77[] = $weizan_11;
-                        if (!empty($weizan_11['agentid']) && $weizan_11['isagent'] == 1 && $weizan_11['status'] == 1){
-                            $weizan_13 = m('member') -> getMember($weizan_11['agentid']);
-                            if (!empty($weizan_13) && $weizan_13['isagent'] == 1 && $weizan_13['status'] == 1){
-                                $weizan_77[] = $weizan_13;
+                //向上寻找前三级代理商
+                if (!empty($member_info['agentid'])){
+                    $up_agent = m('member') -> getMember($member_info['agentid']);
+                    if (!empty($up_agent)){
+                        $agent_info[] = $up_agent;
+                        if (!empty($up_agent['agentid']) && $up_agent['isagent'] == 1 && $up_agent['status'] == 1){
+                            $super_agent = m('member') -> getMember($up_agent['agentid']);
+                            if (!empty($super_agent) && $super_agent['isagent'] == 1 && $super_agent['status'] == 1){
+                                $agent_info[] = $super_agent;
                                 if (empty($commission_config['selfbuy'])){
-                                    if (!empty($weizan_13['agentid']) && $weizan_13['isagent'] == 1 && $weizan_13['status'] == 1){
-                                        $weizan_15 = m('member') -> getMember($weizan_13['agentid']);
-                                        if (!empty($weizan_15) && $weizan_15['isagent'] == 1 && $weizan_15['status'] == 1){
-                                            $weizan_77[] = $weizan_15;
+                                    if (!empty($super_agent['agentid']) && $super_agent['isagent'] == 1 && $super_agent['status'] == 1){
+                                        $top_agent = m('member') -> getMember($super_agent['agentid']);
+                                        if (!empty($top_agent) && $top_agent['isagent'] == 1 && $top_agent['status'] == 1){
+                                            $agent_info[] = $top_agent;
                                         }
                                     }
                                 }
@@ -1184,80 +1192,81 @@ if (!class_exists('CommissionModel')){
                         }
                     }
                 }
-                if (empty($weizan_77)){
+                if (empty($agent_info)){
                     return;
                 }
-                foreach ($weizan_77 as $weizan_144){
-                    $weizan_145 = $this -> getInfo($weizan_144['id'], array('ordercount3', 'ordermoney3', 'order13money', 'order13'));
-                    if (!empty($weizan_145['agentnotupgrade'])){
+                foreach ($agent_info as $agent){
+                    $tmp_agent_info = $this -> getInfo($agent['id'], array('ordercount3', 'ordermoney3', 'order13money', 'order13'));
+                    if (!empty($tmp_agent_info['agentnotupgrade'])){
                         continue;
                     }
-                    $weizan_141 = $this -> getLevel($weizan_144['openid']);
-                    if (empty($weizan_141['id'])){
-                        $weizan_141 = array('levelname' => empty($commission_config['levelname']) ? '普通等级' : $commission_config['levelname'], 'commission1' => $commission_config['commission1'], 'commission2' => $commission_config['commission2'], 'commission3' => $commission_config['commission3']);
+                    $member_level_info = $this -> getLevel($agent['openid']);
+                    if (empty($member_level_info['id'])){
+                        $member_level_info = array('levelname' => empty($commission_config['levelname']) ? '普通等级' : $commission_config['levelname'], 'commission1' => $commission_config['commission1'], 'commission2' => $commission_config['commission2'], 'commission3' => $commission_config['commission3']);
                     }
-                    if ($weizan_140 == 0){
-                        $weizan_31 = $weizan_145['ordermoney3'];
-                        $weizan_143 = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid and {$weizan_31} >= ordermoney and ordermoney>0  order by ordermoney desc limit 1", array(':uniacid' => $_W['uniacid']));
-                        if (empty($weizan_143)){
+                    if ($level_type == 0){
+                        $order_money = $tmp_agent_info['ordermoney3'];
+                        $comm_level_info = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid and {$order_money} >= ordermoney and ordermoney>0  order by ordermoney desc limit 1", array(':uniacid' => $_W['uniacid']));
+                        if (empty($comm_level_info)){
                             continue;
                         }
-                        if (!empty($weizan_141['id'])){
-                            if ($weizan_141['id'] == $weizan_143['id']){
+                        if (!empty($member_level_info['id'])){
+                            if ($member_level_info['id'] == $comm_level_info['id']){
                                 continue;
                             }
-                            if ($weizan_141['ordermoney'] > $weizan_143['ordermoney']){
+                            if ($member_level_info['ordermoney'] > $comm_level_info['ordermoney']){
                                 continue;
                             }
                         }
-                    }else if ($weizan_140 == 1){
-                        $weizan_31 = $weizan_145['order13money'];
-                        $weizan_143 = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid and {$weizan_31} >= ordermoney and ordermoney>0  order by ordermoney desc limit 1", array(':uniacid' => $_W['uniacid']));
-                        if (empty($weizan_143)){
+                    }else if ($level_type == 1){
+                        $order_money = $tmp_agent_info['order13money'];
+                        $comm_level_info = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid and {$order_money} >= ordermoney and ordermoney>0  order by ordermoney desc limit 1", array(':uniacid' => $_W['uniacid']));
+                        if (empty($comm_level_info)){
                             continue;
                         }
-                        if (!empty($weizan_141['id'])){
-                            if ($weizan_141['id'] == $weizan_143['id']){
+                        if (!empty($member_level_info['id'])){
+                            if ($member_level_info['id'] == $comm_level_info['id']){
                                 continue;
                             }
-                            if ($weizan_141['ordermoney'] > $weizan_143['ordermoney']){
+                            if ($member_level_info['ordermoney'] > $comm_level_info['ordermoney']){
                                 continue;
                             }
                         }
-                    }else if ($weizan_140 == 2){
-                        $weizan_30 = $weizan_145['ordercount3'];
-                        $weizan_143 = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid  and {$weizan_30} >= ordercount and ordercount>0  order by ordercount desc limit 1", array(':uniacid' => $_W['uniacid']));
-                        if (empty($weizan_143)){
+                    }else if ($level_type == 2){
+                        $ordercount = $tmp_agent_info['ordercount3'];
+                        $comm_level_info = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid  and {$ordercount} >= ordercount and ordercount>0  order by ordercount desc limit 1", array(':uniacid' => $_W['uniacid']));
+                        if (empty($comm_level_info)){
                             continue;
                         }
-                        if (!empty($weizan_141['id'])){
-                            if ($weizan_141['id'] == $weizan_143['id']){
+                        if (!empty($member_level_info['id'])){
+                            if ($member_level_info['id'] == $comm_level_info['id']){
                                 continue;
                             }
-                            if ($weizan_141['ordercount'] > $weizan_143['ordercount']){
+                            if ($member_level_info['ordercount'] > $comm_level_info['ordercount']){
                                 continue;
                             }
                         }
-                    }else if ($weizan_140 == 3){
-                        $weizan_30 = $weizan_145['order13'];
-                        $weizan_143 = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid  and {$weizan_30} >= ordercount and ordercount>0  order by ordercount desc limit 1", array(':uniacid' => $_W['uniacid']));
-                        if (empty($weizan_143)){
+                    }else if ($level_type == 3){
+                        $ordercount = $tmp_agent_info['order13'];
+                        $comm_level_info = pdo_fetch('select * from ' . tablename('ewei_shop_commission_level') . " where uniacid=:uniacid  and {$ordercount} >= ordercount and ordercount>0  order by ordercount desc limit 1", array(':uniacid' => $_W['uniacid']));
+                        if (empty($comm_level_info)){
                             continue;
                         }
-                        if (!empty($weizan_141['id'])){
-                            if ($weizan_141['id'] == $weizan_143['id']){
+                        if (!empty($member_level_info['id'])){
+                            if ($member_level_info['id'] == $comm_level_info['id']){
                                 continue;
                             }
-                            if ($weizan_141['ordercount'] > $weizan_143['ordercount']){
+                            if ($member_level_info['ordercount'] > $comm_level_info['ordercount']){
                                 continue;
                             }
                         }
                     }
-                    pdo_update('ewei_shop_member', array('agentlevel' => $weizan_143['id']), array('id' => $weizan_144['id']));
-                    $this -> sendMessage($weizan_144['openid'], array('nickname' => $weizan_144['nickname'], 'oldlevel' => $weizan_141, 'newlevel' => $weizan_143,), TM_COMMISSION_UPGRADE);
+                    pdo_update('ewei_shop_member', array('agentlevel' => $comm_level_info['id']), array('id' => $agent['id']));
+                    $this -> sendMessage($agent['openid'], array('nickname' => $agent['nickname'], 'oldlevel' => $member_level_info, 'newlevel' => $comm_level_info,), TM_COMMISSION_UPGRADE);
                 }
             }
         }
+
         function upgradeLevelByAgent($openid){
             global $_W;
             if (empty($openid)){

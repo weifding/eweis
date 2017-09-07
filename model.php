@@ -1202,6 +1202,8 @@ if (!class_exists('CommissionModel')) {
             ));
             return $level;
         }
+
+        
         function upgradeLevel($openid)
         {
             global $_W;
