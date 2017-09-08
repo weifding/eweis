@@ -1307,6 +1307,10 @@ function getList($val1210, $val1211)
     $val1212 = "http://wap.kuaidi100.com/wap_result.jsp?rand=" . time() . "&id={$val1210}&fromWeb=null&postid={$val1211}";
     load()->func("communication");
     $val1215 = ihttp_request($val1212);
+    LOG::INFO('EX:'.$val1212);
+    //$results = print_r($val1215, true);
+    //LOG::INFO('EX:1'.$results);
+    //print_r($val1215);
     $val1217 = $val1215["content"];
     if (empty($val1217)) {
         return array();
