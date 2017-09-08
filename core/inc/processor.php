@@ -6,6 +6,8 @@ class Processor extends WeModuleProcessor
 {
     public function respond()
     {
+
+
         $rule = pdo_fetch('select * from ' . tablename('rule') . ' where id=:id limit 1', array(
             ':id' => $this->rule
         ));

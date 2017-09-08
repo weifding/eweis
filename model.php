@@ -1188,6 +1188,7 @@ if (!class_exists('CommissionModel')) {
             }
         }
 
+        
         //获取佣金分配等级
         function getLevel($openid)
         {

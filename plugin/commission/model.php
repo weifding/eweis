@@ -1057,6 +1057,7 @@ if (!class_exists('CommissionModel')){
             }
             $this -> upgradeLevelByOrder($openid);
         }
+
         function getShop($mid){
             global $_W;
             $member = m('member') -> getMember($mid);
@@ -1071,6 +1072,9 @@ if (!class_exists('CommissionModel')){
             }
             if (empty($weizan_137)){
                 $weizan_137 = $shop_config['name'];
+            }
+            if(empty($member['nickname'])){
+                $member['nickname'] = "无名";
             }
             $weizan_138 = $this -> getSet();
             if (empty($weizan_134)){
@@ -1091,6 +1095,7 @@ if (!class_exists('CommissionModel')){
             }
             return $weizan_134;
         }
+        
         function getLevels($weizan_139 = true){
             global $_W;
             if ($weizan_139){
@@ -1290,6 +1295,9 @@ if (!class_exists('CommissionModel')){
             }
             if (empty($agent_lists)){
                 return 0;
+            }
+            foreach ($agent_lists as $info){
+                LOG::INFO('MyShop'.$info['id']);
             }
             return count($agent_lists);
 
