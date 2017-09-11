@@ -13,19 +13,43 @@ function sortByTime($zym_var_7, $zym_var_8)
 }
 function getList($zym_var_6, $zym_var_4)
 {
-    $zym_var_1 = "http://wap.kuaidi100.com/wap_result.jsp?rand=" . time() . "&id={$zym_var_6}&fromWeb=null&postid={$zym_var_4}";
-    load()->func("communication");
-    $zym_var_2 = ihttp_request($zym_var_1);
-    $zym_var_5 = $zym_var_2["content"];
-    if (empty($zym_var_5)) {
-        return array();
+    $str = file_get_contents(EWEI_SHOP_PATH.'/data/sf.json');
+    LOG::INFO('EX:data'.EWEI_SHOP_PATH.'/data/sf.json');
+    $json = json_decode($str, true);
+    LOG::INFO('EX:1'.$companyid);
+    //参数设置
+    $post_data = array();
+    $post_data["customer"] = $json['customer'] ;
+    $key= $json['key'];
+    $post_data["param"] = '{"com":"'.$companyid.'","num":"'.$posterid.'"}';
+
+    $url='http://poll.kuaidi100.com/poll/query.do';
+    $post_data["sign"] = md5($post_data["param"].$key.$post_data["customer"]);
+    $post_data["sign"] = strtoupper($post_data["sign"]);
+    $o=""; 
+    foreach ($post_data as $k=>$v)
+    {
+        $o.= "$k=".urlencode($v)."&";		//默认UTF-8编码格式
     }
-    preg_match_all("/\<p\>&middot;(.*)\<\/p\>/U", $zym_var_5, $zym_var_3);
-    if (!isset($zym_var_3[1])) {
-        return false;
-    }
-    return $zym_var_3[1];
+    $post_data=substr($o,0,-1);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_URL,$url);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+
+    $result = curl_exec($ch);
+    curl_close($ch);
+    $data = str_replace("\&quot;",'"',$result);
+    $data = json_decode($data,true);
+    $printr = print_r($data, true);
+    LOG::INFO('EX:1'.$printr);
+
+    return $data['data'];
 }
+}
+
 $operation = !empty($_GPC["op"]) ? $_GPC["op"] : "display";
 $openid    = m("user")->getOpenid();
 $uniacid   = $_W["uniacid"];
@@ -54,29 +78,25 @@ if ($_W["isajax"]) {
     } else if ($operation == "step") {
         $express   = trim($_GPC["express"]);
         $expresssn = trim($_GPC["expresssn"]);
-        $arr       = getList($express, $expresssn);
+
+        $arr = getList($express, $expresssn);
         if (!$arr) {
-            $arr = getList($express, $expresssn);
-            if (!$arr) {
-                show_json(1, array(
-                    "list" => array()
-                ));
-            }
+            show_json(1, array(
+                "list" => array()
+            ));
         }
+        
         $len   = count($arr);
         $step1 = explode("<br />", str_replace("&middot;", "", $arr[0]));
         $step2 = explode("<br />", str_replace("&middot;", "", $arr[$len - 1]));
         for ($i = 0; $i < $len; $i++) {
-            if (strtotime(trim($step1[0])) > strtotime(trim($step2[0]))) {
-                $row = $arr[$i];
-            } else {
-                $row = $arr[$len - $i - 1];
-            }
+            $row = $arr[$i];
             $step   = explode("<br />", str_replace("&middot;", "", $row));
+            
             $list[] = array(
-                "time" => trim($step[0]),
-                "step" => trim($step[1]),
-                "ts" => strtotime(trim($step[0]))
+                "time" => $row['time'],
+                "step" => $row['context'],
+                "ts" => $row['context']
             );
         }
         show_json(1, array(

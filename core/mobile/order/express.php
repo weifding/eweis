@@ -13,21 +13,47 @@ function sortByTime($a, $b)
         return $a['ts'] > $b['ts'] ? 1 : -1;
     }
 }
+
 function getList($express, $expresssn)
 {
-    $url = "http://wap.kuaidi100.com/wap_result.jsp?rand=" . time() . "&id={$express}&fromWeb=null&postid={$expresssn}";
-    load()->func('communication');
-    $resp    = ihttp_request($url);
-    $content = $resp['content'];
-    if (empty($content)) {
-        return array();
+    $str = file_get_contents(EWEI_SHOP_PATH.'/data/sf.json');
+    LOG::INFO('EX:data'.EWEI_SHOP_PATH.'/data/sf.json');
+    $json = json_decode($str, true);
+    LOG::INFO('EX:1'.$companyid);
+    //参数设置
+    $post_data = array();
+    $post_data["customer"] = $json['customer'] ;
+    $key= $json['key'];
+    $post_data["param"] = '{"com":"'.$companyid.'","num":"'.$posterid.'"}';
+
+    $url='http://poll.kuaidi100.com/poll/query.do';
+    $post_data["sign"] = md5($post_data["param"].$key.$post_data["customer"]);
+    $post_data["sign"] = strtoupper($post_data["sign"]);
+    $o=""; 
+    foreach ($post_data as $k=>$v)
+    {
+        $o.= "$k=".urlencode($v)."&";		//默认UTF-8编码格式
     }
-    preg_match_all('/\<p\>&middot;(.*)\<\/p\>/U', $content, $arr);
-    if (!isset($arr[1])) {
-        return false;
-    }
-    return $arr[1];
+    $post_data=substr($o,0,-1);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_URL,$url);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+
+    $result = curl_exec($ch);
+    curl_close($ch);
+    $data = str_replace("\&quot;",'"',$result);
+    $data = json_decode($data,true);
+    $printr = print_r($data, true);
+    LOG::INFO('EX:1'.$printr);
+
+    return $data['data'];
 }
+}
+
+
 $operation = !empty($_GPC['op']) ? $_GPC['op'] : 'display';
 $openid    = m('user')->getOpenid();
 $uniacid   = $_W['uniacid'];
@@ -57,29 +83,22 @@ if ($_W['isajax']) {
     } else if ($operation == 'step') {
         $express   = trim($_GPC['express']);
         $expresssn = trim($_GPC['expresssn']);
-        $arr       = getList($express, $expresssn);
+        $arr = getList($express, $expresssn);
         if (!$arr) {
-            $arr = getList($express, $expresssn);
-            if (!$arr) {
-                show_json(1, array(
-                    'list' => array()
-                ));
-            }
+            die($arr['message']."未找到物流信息2.");
         }
+        
         $len   = count($arr);
         $step1 = explode("<br />", str_replace("&middot;", "", $arr[0]));
         $step2 = explode("<br />", str_replace("&middot;", "", $arr[$len - 1]));
         for ($i = 0; $i < $len; $i++) {
-            if (strtotime(trim($step1[0])) > strtotime(trim($step2[0]))) {
-                $row = $arr[$i];
-            } else {
-                $row = $arr[$len - $i - 1];
-            }
+            $row = $arr[$i];
             $step   = explode("<br />", str_replace("&middot;", "", $row));
+            
             $list[] = array(
-                'time' => trim($step[0]),
-                'step' => trim($step[1]),
-                'ts' => strtotime(trim($step[0]))
+                "time" => $row['time'],
+                "step" => $row['context'],
+                "ts" => $row['context']
             );
         }
         show_json(1, array(

@@ -1235,25 +1235,20 @@ if ($operation == "display") {
         }
         $arr = getList($express, $expresssn);
         if (!$arr) {
-            $arr = getList($express, $expresssn);
-            if (!$arr) {
-                die("未找到物流信息.");
-            }
+            die($arr['message']."未找到物流信息2.");
         }
+        
         $len   = count($arr);
         $step1 = explode("<br />", str_replace("&middot;", "", $arr[0]));
         $step2 = explode("<br />", str_replace("&middot;", "", $arr[$len - 1]));
         for ($i = 0; $i < $len; $i++) {
-            if (strtotime(trim($step1[0])) > strtotime(trim($step2[0]))) {
-                $row = $arr[$i];
-            } else {
-                $row = $arr[$len - $i - 1];
-            }
+            $row = $arr[$i];
             $step   = explode("<br />", str_replace("&middot;", "", $row));
+            
             $list[] = array(
-                "time" => trim($step[0]),
-                "step" => trim($step[1]),
-                "ts" => strtotime(trim($step[0]))
+                "time" => $row['time'],
+                "step" => $row['context'],
+                "ts" => $row['context']
             );
         }
         load()->func("tpl");
@@ -1262,27 +1257,22 @@ if ($operation == "display") {
     } else if ($to == "express") {
         $express   = trim($item["express"]);
         $expresssn = trim($item['expresssn']);
-        $arr       = getList($express, $expresssn);
+        $arr = getList($express, $expresssn);
         if (!$arr) {
-            $arr = getList($express, $expresssn);
-            if (!$arr) {
-                die("未找到物流信息.");
-            }
+            die($arr['message']."未找到物流信息2.");
         }
+        
         $len   = count($arr);
         $step1 = explode("<br />", str_replace("&middot;", "", $arr[0]));
         $step2 = explode("<br />", str_replace("&middot;", "", $arr[$len - 1]));
         for ($i = 0; $i < $len; $i++) {
-            if (strtotime(trim($step1[0])) > strtotime(trim($step2[0]))) {
-                $row = $arr[$i];
-            } else {
-                $row = $arr[$len - $i - 1];
-            }
+            $row = $arr[$i];
             $step   = explode("<br />", str_replace("&middot;", "", $row));
+            
             $list[] = array(
-                "time" => trim($step[0]),
-                "step" => trim($step[1]),
-                "ts" => strtotime(trim($step[0]))
+                "time" => $row['time'],
+                "step" => $row['context'],
+                "ts" => $row['context']
             );
         }
         load()->func("tpl");
@@ -1302,25 +1292,44 @@ function sortByTime($val1204, $val1205)
         return $val1204["ts"] > $val1205["ts"] ? 1 : -1;
     }
 }
-function getList($val1210, $val1211)
+function getList($companyid, $posterid)
 {
-    $val1212 = "http://wap.kuaidi100.com/wap_result.jsp?rand=" . time() . "&id={$val1210}&fromWeb=null&postid={$val1211}";
-    load()->func("communication");
-    $val1215 = ihttp_request($val1212);
-    LOG::INFO('EX:'.$val1212);
-    //$results = print_r($val1215, true);
-    //LOG::INFO('EX:1'.$results);
-    //print_r($val1215);
-    $val1217 = $val1215["content"];
-    if (empty($val1217)) {
-        return array();
+    $str = file_get_contents(EWEI_SHOP_PATH.'/data/sf.json');
+    LOG::INFO('EX:data'.EWEI_SHOP_PATH.'/data/sf.json');
+    $json = json_decode($str, true);
+    LOG::INFO('EX:1'.$companyid);
+    //参数设置
+    $post_data = array();
+    $post_data["customer"] = $json['customer'] ;
+    $key= $json['key'];
+    $post_data["param"] = '{"com":"'.$companyid.'","num":"'.$posterid.'"}';
+
+    $url='http://poll.kuaidi100.com/poll/query.do';
+    $post_data["sign"] = md5($post_data["param"].$key.$post_data["customer"]);
+    $post_data["sign"] = strtoupper($post_data["sign"]);
+    $o=""; 
+    foreach ($post_data as $k=>$v)
+    {
+        $o.= "$k=".urlencode($v)."&";		//默认UTF-8编码格式
     }
-    preg_match_all("/\<p\>&middot;(.*)\<\/p\>/U", $val1217, $val1221);
-    if (!isset($val1221[1])) {
-        return false;
-    }
-    return $val1221[1];
+    $post_data=substr($o,0,-1);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_URL,$url);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+
+    $result = curl_exec($ch);
+    curl_close($ch);
+    $data = str_replace("\&quot;",'"',$result);
+    $data = json_decode($data,true);
+    $printr = print_r($data, true);
+    LOG::INFO('EX:1'.$printr);
+
+    return $data['data'];
 }
+
 function changeWechatSend($val1224, $val1225, $val1226 = '')
 {
     global $_W;
