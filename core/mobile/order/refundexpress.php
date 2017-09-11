@@ -11,7 +11,7 @@ function sortByTime($zym_var_7, $zym_var_8)
         return $zym_var_7["ts"] > $zym_var_8["ts"] ? 1 : -1;
     }
 }
-function getList($zym_var_6, $zym_var_4)
+function getList($companyid, $posterid)
 {
     $str = file_get_contents(EWEI_SHOP_PATH.'/data/sf.json');
     LOG::INFO('EX:data'.EWEI_SHOP_PATH.'/data/sf.json');

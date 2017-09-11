@@ -14,7 +14,7 @@ function sortByTime($a, $b)
     }
 }
 
-function getList($express, $expresssn)
+function getList($companyid, $posterid)
 {
     $str = file_get_contents(EWEI_SHOP_PATH.'/data/sf.json');
     LOG::INFO('EX:data'.EWEI_SHOP_PATH.'/data/sf.json');
