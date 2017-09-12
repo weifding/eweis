@@ -63,7 +63,7 @@ if ($_W["isajax"]) {
             $agent = m("member")->getMember($mid);
         }
     }
-    
+
     //邀请链接谁发出的，就锁定邀请者
     $agent = m("member")->getMember($mid);
 
@@ -212,6 +212,7 @@ if ($_W["isajax"]) {
                     "weixin" => $_GPC["weixin"],
                     "agenttime" => $become_check == 1 ? time() : 0
                 );
+
                 pdo_update("ewei_shop_member", $data, array(
                     "id" => $member["id"]
                 ));

@@ -55,6 +55,7 @@ if ($_W['isajax']) {
             if (!empty($member['uid'])) {
                 $mcdata = $_GPC['mcdata'];
                 load()->model('mc');
+                //mc.mod.php uniacid当作wid处理的bug，已经修改
                 mc_update($member['uid'], $mcdata);
             }
         }
