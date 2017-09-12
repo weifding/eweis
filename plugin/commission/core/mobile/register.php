@@ -40,11 +40,13 @@ $_W['shopshare'] = array(
     'title' => '邀请成为分销商',
     'imgUrl' => $shop['logo'],
     'desc' => $member['nickname'].'真诚邀请您加入',
-    'link' => $this->createPluginMobileUrl('commission/register')
+    'link' => $this->createPluginMobileUrl('commission/register', array('mid' => $member['id']))
 );
 
 if ($_W["isajax"]) {
     $agent = false;
+
+    //旧的邀请代码
     if (!empty($member["fixagentid"])) {
         $mid = $member["agentid"];
         if (!empty($mid)) {
@@ -61,6 +63,10 @@ if ($_W["isajax"]) {
             $agent = m("member")->getMember($mid);
         }
     }
+    
+    //邀请链接谁发出的，就锁定邀请者
+    $agent = m("member")->getMember($mid);
+
     $ret           = array(
         "shop_set" => $shop_set,
         "set" => $set,
