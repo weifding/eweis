@@ -28,11 +28,14 @@ if ($level == 1) {
     }
 } elseif ($level == 2) {
     //二级代理商代码改成专属用户代码
-    if ($my_users > 0) {
+    /* if ($my_users > 0) {
         //$condition = " and agentid in( " . implode(',', array_keys($member['level1_agentids'])) . ")";
         $condition = " and inviter={$member['id']}";
         $hasangent = true;
-    }
+    } */
+    $condition = " and agentid in( " . implode(',', array_keys($member['level1_agentids'])) . ")";
+    $hasangent = true;
+
 } elseif ($level == 3) {
     //废弃掉三级代理商代码
     //if ($level3 > 0) {
@@ -47,9 +50,9 @@ if ($_W['isajax']) {
     $psize  = 20;
     $list   = array();
     if ($hasangent) {
-        if ($level == 1)
+        if ($level == 1 || $level==2)
         {
-            //一级代理商代码
+            //一级代理商代码 and 二级代理商 
             $list = pdo_fetchall("select * from " . tablename('ewei_shop_member') . " where isagent =1 and status=1 and uniacid = " . $_W['uniacid'] . " {$condition}  ORDER BY agenttime desc limit " . ($pindex - 1) * $psize . ',' . $psize);
             foreach ($list as &$row) {
                 $info                    = $this->model->getInfo($row['openid'], array(

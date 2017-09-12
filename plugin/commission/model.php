@@ -467,7 +467,7 @@ if (!class_exists('CommissionModel')){
             //非代理商的专属用户数量
             $obj_inviter = pdo_fetchall('select id from ' . tablename('ewei_shop_member') . ' where uniacid=:uniacid and inviter='. $member['id'] .' and isagent=0', array(':uniacid' => $_W['uniacid']), 'id');
             $inviter_count = count($obj_inviter);
-            $agentcount += $inviter_count;
+            //$agentcount += $inviter_count;
             
             $member['agentcount'] = $agentcount;
             $member['ordercount'] = $weizan_30;
