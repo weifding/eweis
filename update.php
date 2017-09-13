@@ -1,5 +1,7 @@
 <?php
-
+if(!defined('IN_IA')) {
+  exit('Access Denied');
+}
 $sql = "
 CREATE TABLE IF NOT EXISTS `ims_ewei_shop_member_message_template` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

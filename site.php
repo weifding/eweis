@@ -21,12 +21,18 @@ require_once EWEI_SHOP_INC.'plugin/plugin_model.php';
 Log::INFO("My Food");
 
 
+
+//插件的入口函数
 class Ewei_shopModuleSite extends Core { 
       
     //商城管理 
     public function doWebShop(){ $this->_exec(__FUNCTION__ ,'goods'); }
     //订单管理  
     public function doWebOrder(){ $this->_exec(__FUNCTION__,'list'); }
+
+    //快递管理  
+    public function doWebExpress(){ $this->_exec(__FUNCTION__,'batchadd'); }
+
     //会员管理
     public function doWebMember(){ $this->_exec(__FUNCTION__,'list'); }
     //财务管理

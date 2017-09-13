@@ -1,0 +1,43 @@
+{template 'web/_header'}
+ 
+<div class="panel panel-info">
+    <div class="panel-heading">批量输入快递单</div>
+    <div class="panel-body">
+        <form action="./index.php" method="get" class="form-horizontal" role="form" id="form1">
+            <input type="hidden" name="c" value="site" />
+            <input type="hidden" name="a" value="entry" />
+            <input type="hidden" name="m" value="ewei_shop" />
+            <input type="hidden" name="do" value="express" />
+            <input type="hidden" name="p" value="batchadd" />
+            <input type="hidden" name="type" value="{$_GPC['type']}" />
+            <div class="form-group">
+                <label class="col-xs-12 col-sm-2 col-md-2 col-lg-1 control-label">订单号</label>
+                <div class="col-sm-8 col-lg-9 col-xs-12">
+                    <textarea cols=60 rows=10 class="form-control"  name="realname" value="{$_GPC['realname']}" placeholder='批量输入订单号，用空格或者换行隔开'></textarea> 
+                </div>
+            </div>
+             
+             <div class="form-group">
+                <label class="col-xs-12 col-sm-2 col-md-2 col-lg-1 control-label">快递单号</label>
+                <div class="col-sm-8 col-lg-9 col-xs-12">
+                    <textarea cols=60 rows=10 class="form-control"  name="logno" value="{$_GPC['logno']}" placeholder='批量输入快递单号，用空格或者换行隔开,必须和上面的订单号顺序一致'> </textarea>
+                </div>
+            </div>
+ 
+             
+              <div class="form-group">
+                    <label class="col-xs-12 col-sm-2 col-md-2 col-lg-1 control-label"></label>
+                    <div class="col-sm-7 col-lg-9 col-xs-12">
+                         <input type="hidden" name="token" value="{$_W['token']}" />
+                        <button type="submit" name="export" value="1" class="btn btn-primary btn-default">导入</button>
+                    
+                    </div>
+                </div>
+            <div class="form-group">
+            </div>
+        </form>
+    </div>
+</div>
+
+ 
+{template 'web/_footer'}
