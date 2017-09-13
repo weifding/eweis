@@ -39,6 +39,9 @@ if ($_W["isajax"]) {
     if (!empty($member["level"])) {
         $level = m("member")->getLevel($openid);
     }
+    if ($member["isagent"] == 1 && $member["status"] == 1) {
+        $level["levelname"] = $level["levelname"].'|分销商';
+    }
     $orderparams = array(
         ":uniacid" => $_W["uniacid"],
         ":openid" => $openid
