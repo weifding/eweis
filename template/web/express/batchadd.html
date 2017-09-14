@@ -1,9 +1,9 @@
 {template 'web/_header'}
  
 <div class="panel panel-info">
-    <div class="panel-heading">批量输入快递单</div>
+    <div class="panel-heading">批量输入快递单POST</div>
     <div class="panel-body">
-        <form action="./index.php" method="get" class="form-horizontal" role="form" id="form1">
+        <form action="./index.php" method="post" class="form-horizontal" role="form" id="form1">
             <input type="hidden" name="c" value="site" />
             <input type="hidden" name="a" value="entry" />
             <input type="hidden" name="m" value="ewei_shop" />
@@ -13,17 +13,22 @@
             <div class="form-group">
                 <label class="col-xs-12 col-sm-2 col-md-2 col-lg-1 control-label">订单号</label>
                 <div class="col-sm-8 col-lg-9 col-xs-12">
-                    <textarea cols=60 rows=10 class="form-control"  name="realname" value="{$_GPC['realname']}" placeholder='批量输入订单号，用空格或者换行隔开'></textarea> 
+                    <textarea cols=60 rows=10 class="form-control"  name="order_lists" value="{$_GPC['order_lists']}" placeholder='批量输入订单号，用空格或者换行隔开'></textarea> 
                 </div>
             </div>
              
              <div class="form-group">
                 <label class="col-xs-12 col-sm-2 col-md-2 col-lg-1 control-label">快递单号</label>
                 <div class="col-sm-8 col-lg-9 col-xs-12">
-                    <textarea cols=60 rows=10 class="form-control"  name="logno" value="{$_GPC['logno']}" placeholder='批量输入快递单号，用空格或者换行隔开,必须和上面的订单号顺序一致'> </textarea>
+                    <textarea cols=60 rows=10 class="form-control"  name="post_lists" value="{$_GPC['post_lists']}" placeholder='批量输入快递单号，用空格或者换行隔开,必须和上面的订单号顺序一致'> </textarea>
                 </div>
             </div>
- 
+            <div class="form-group">
+                <label class="col-xs-12 col-sm-2 col-md-2 col-lg-1 control-label">结果</label>
+                <div class="col-sm-8 col-lg-9 col-xs-12">
+                    <textarea cols=60 rows=10 class="form-control"  name="result" placeholder='检查结果'> {$_GPC['result']}</textarea>
+                </div>
+            </div>
              
               <div class="form-group">
                     <label class="col-xs-12 col-sm-2 col-md-2 col-lg-1 control-label"></label>
