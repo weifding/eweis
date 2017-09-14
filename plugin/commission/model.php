@@ -582,92 +582,112 @@ if (!class_exists('CommissionModel')){
             $weizan_85 = ihttp_request($weizan_82);
             return imagecreatefromstring($weizan_85['content']);
         }
-        public function createGoodsImage($weizan_6, $weizan_86){
+       
+        public function createGoodsImage($goods, $shop_set){
             global $_W, $_GPC;
-            $weizan_6 = set_medias($weizan_6, 'thumb');
+            $goods = set_medias($goods, 'thumb');
             $openid = m('user') -> getOpenid();
-            $weizan_87 = m('member') -> getMember($openid);
-            if ($weizan_87['isagent'] == 1 && $weizan_87['status'] == 1){
-                $weizan_88 = $weizan_87;
+            $member = m('member') -> getMember($openid);
+            if ($member['isagent'] == 1 && $member['status'] == 1){
+                $shop_owner = $member;
             }else{
-                $weizan_79 = intval($_GPC['mid']);
-                if (!empty($weizan_79)){
-                    $weizan_88 = m('member') -> getMember($weizan_79);
+                $shop_owner_id = intval($_GPC['mid']);
+                if (!empty($shop_owner_id)){
+                    $shop_owner = m('member') -> getMember($shop_owner_id);
                 }
             }
-            $weizan_81 = IA_ROOT . '/addons/ewei_shop/data/poster/' . $_W['uniacid'] . '/';
-            if (!is_dir($weizan_81)){
+            $image_dir = IA_ROOT . '/addons/ewei_shop/data/poster/' . $_W['uniacid'] . '/';
+            if (!is_dir($image_dir)){
                 load() -> func('file');
-                mkdirs($weizan_81);
+                mkdirs($image_dir);
             }
-            $weizan_89 = empty($weizan_6['commission_thumb']) ? $weizan_6['thumb'] : tomedia($weizan_6['commission_thumb']);
-            $weizan_90 = md5(json_encode(array('id' => $weizan_6['id'], 'marketprice' => $weizan_6['marketprice'], 'productprice' => $weizan_6['productprice'], 'img' => $weizan_89, 'openid' => $openid, 'version' => 4)));
-            $weizan_83 = $weizan_90 . '.jpg';
-            if (!is_file($weizan_81 . $weizan_83)){
+            $thumb_img_info = empty($goods['commission_thumb']) ? $goods['thumb'] : tomedia($goods['commission_thumb']);
+            $file_name = md5(json_encode(array('id' => $goods['id'], 'marketprice' => $goods['marketprice'], 'productprice' => $goods['productprice'], 'img' => $thumb_img_info, 'openid' => $openid, 'version' => 4)));
+            $img_file_name = $file_name . '.jpg';
+            //if (!is_file($image_dir . $img_file_name)){
+            if (true){
                 set_time_limit(0);
-                $weizan_91 = IA_ROOT . '/addons/ewei_shop/static/fonts/msyh.ttf';
-                $weizan_92 = imagecreatetruecolor(640, 1225);
-                $weizan_93 = imagecreatefromjpeg(IA_ROOT . '/addons/ewei_shop/plugin/commission/images/poster.jpg');
-                imagecopy($weizan_92, $weizan_93, 0, 0, 0, 0, 640, 1225);
-                imagedestroy($weizan_93);
-                $weizan_94 = preg_replace('/\/0$/i', '/96', $weizan_88['avatar']);
-                $weizan_95 = $this -> createImage($weizan_94);
-                $weizan_96 = imagesx($weizan_95);
-                $weizan_97 = imagesy($weizan_95);
-                imagecopyresized($weizan_92, $weizan_95, 24, 32, 0, 0, 88, 88, $weizan_96, $weizan_97);
-                imagedestroy($weizan_95);
-                $weizan_98 = $this -> createImage($weizan_89);
-                $weizan_96 = imagesx($weizan_98);
-                $weizan_97 = imagesy($weizan_98);
-                imagecopyresized($weizan_92, $weizan_98, 0, 160, 0, 0, 640, 640, $weizan_96, $weizan_97);
-                imagedestroy($weizan_98);
-                $weizan_99 = imagecreatetruecolor(640, 127);
+                $font = IA_ROOT . '/addons/ewei_shop/static/fonts/msyh.ttf';
+                $image_tmp = imagecreatetruecolor(640, 1225);
+                $poster_img = imagecreatefromjpeg(IA_ROOT . '/addons/ewei_shop/plugin/commission/images/poster.jpg');
+                imagecopy($image_tmp, $poster_img, 0, 0, 0, 0, 640, 1225);
+                imagedestroy($poster_img);
+                $avator_info = preg_replace('/\/0$/i', '/96', $shop_owner['avatar']);
+                $avatar_img = $this -> createImage($avator_info);
+                $img_sx = imagesx($avatar_img);
+                $img_sy = imagesy($avatar_img);
+                imagecopyresized($image_tmp, $avatar_img, 24, 32, 0, 0, 88, 88, $img_sx, $img_sy);
+                imagedestroy($avatar_img);
+                $thumb_img = $this -> createImage($thumb_img_info);
+                $img_sx = imagesx($thumb_img);
+                $img_sy = imagesy($thumb_img);
+                imagecopyresized($image_tmp, $thumb_img, 0, 160, 0, 0, 640, 640, $img_sx, $img_sy);
+                imagedestroy($thumb_img);
+
+                $weizan_99 = imagecreatetruecolor(640, 155);
                 imagealphablending($weizan_99, false);
                 imagesavealpha($weizan_99, true);
                 $weizan_100 = imagecolorallocatealpha($weizan_99, 0, 0, 0, 25);
                 imagefill($weizan_99, 0, 0, $weizan_100);
-                imagecopy($weizan_92, $weizan_99, 0, 678, 0, 0, 640, 127);
+                imagecopy($image_tmp, $weizan_99, 0, 678, 0, 0, 640, 155);
                 imagedestroy($weizan_99);
-                $weizan_101 = tomedia(m('qrcode') -> createGoodsQrcode($weizan_88['id'], $weizan_6['id']));
-                $weizan_102 = $this -> createImage($weizan_101);
-                $weizan_96 = imagesx($weizan_102);
-                $weizan_97 = imagesy($weizan_102);
-                imagecopyresized($weizan_92, $weizan_102, 50, 835, 0, 0, 250, 250, $weizan_96, $weizan_97);
-                imagedestroy($weizan_102);
-                $weizan_103 = imagecolorallocate($weizan_92, 0, 3, 51);
-                $weizan_104 = imagecolorallocate($weizan_92, 240, 102, 0);
-                $weizan_105 = imagecolorallocate($weizan_92, 255, 255, 255);
-                $weizan_106 = imagecolorallocate($weizan_92, 255, 255, 0);
+
+                $qrcode_info = tomedia(m('qrcode') -> createGoodsQrcode($shop_owner['id'], $goods['id']));
+                $qrcode_img = $this -> createImage($qrcode_info);
+                $img_sx = imagesx($qrcode_img);
+                $img_sy = imagesy($qrcode_img);
+                imagecopyresized($image_tmp, $qrcode_img, 50, 835, 0, 0, 250, 250, $img_sx, $img_sy);
+                imagedestroy($qrcode_img);
+                $weizan_103 = imagecolorallocate($image_tmp, 0, 3, 51);
+                $weizan_104 = imagecolorallocate($image_tmp, 240, 102, 0);
+                $weizan_105 = imagecolorallocate($image_tmp, 255, 255, 255);
+                $weizan_106 = imagecolorallocate($image_tmp, 255, 255, 0);
                 $weizan_107 = '我是';
-                imagettftext($weizan_92, 20, 0, 150, 70, $weizan_103, $weizan_91, $weizan_107);
-                imagettftext($weizan_92, 20, 0, 210, 70, $weizan_104, $weizan_91, $weizan_88['nickname']);
+                $ttf_result = imagettftext($image_tmp, 20, 0, 150, 70, $weizan_103, $font, $weizan_107);
+                if(!$ttf_result)
+                {
+                    echo $font.$ttf_result;
+                }
+                imagettftext($image_tmp, 20, 0, 210, 70, $weizan_104, $font, $shop_owner['nickname']);
                 $weizan_108 = '我要为';
-                imagettftext($weizan_92, 20, 0, 150, 105, $weizan_103, $weizan_91, $weizan_108);
-                $weizan_109 = $weizan_86['name'];
-                imagettftext($weizan_92, 20, 0, 240, 105, $weizan_104, $weizan_91, $weizan_109);
-                $weizan_110 = imagettfbbox(20, 0, $weizan_91, $weizan_109);
+                imagettftext($image_tmp, 20, 0, 150, 105, $weizan_103, $font, $weizan_108);
+                $weizan_109 = $shop_set['name'];
+                imagettftext($image_tmp, 20, 0, 240, 105, $weizan_104, $font, $weizan_109);
+                $weizan_110 = imagettfbbox(20, 0, $font, $weizan_109);
                 $weizan_111 = $weizan_110[4] - $weizan_110[6];
                 $weizan_112 = '代言';
-                imagettftext($weizan_92, 20, 0, 240 + $weizan_111 + 10, 105, $weizan_103, $weizan_91, $weizan_112);
-                $weizan_113 = mb_substr($weizan_6['title'], 0, 50, 'utf-8');
-                imagettftext($weizan_92, 20, 0, 30, 730, $weizan_105, $weizan_91, $weizan_113);
-                $weizan_114 = '￥' . number_format($weizan_6['marketprice'], 2);
-                imagettftext($weizan_92, 25, 0, 25, 780, $weizan_106, $weizan_91, $weizan_114);
-                $weizan_110 = imagettfbbox(26, 0, $weizan_91, $weizan_114);
+                imagettftext($image_tmp, 20, 0, 240 + $weizan_111 + 10, 105, $weizan_103, $font, $weizan_112);
+
+                //绘制标题
+                $title1 = mb_substr($goods['title'], 0, 25, 'utf-8');
+                imagettftext($image_tmp, 20, 0, 30, 720, $weizan_105, $font, $title1);
+                $title2 = mb_substr($goods['title'], 26, NULL, 'utf-8');
+                imagettftext($image_tmp, 20, 0, 10, 760, $weizan_105, $font, $title2);
+                LOG::INFO('IMG'.$goods['title']);
+                LOG::INFO('IMG'.$title1);
+                LOG::INFO('IMG'.$title2);
+                LOG::INFO('IMG'.mb_strlen($title1,'utf-8'));
+              
+                
+                //价格
+                $price_y = 820;
+                $weizan_114 = '￥' . number_format($goods['marketprice'], 2);
+                imagettftext($image_tmp, 25, 0, 25, $price_y, $weizan_106, $font, $weizan_114);
+                $weizan_110 = imagettfbbox(26, 0, $font, $weizan_114);
                 $weizan_111 = $weizan_110[4] - $weizan_110[6];
-                if ($weizan_6['productprice'] > 0){
-                    $weizan_115 = '￥' . number_format($weizan_6['productprice'], 2);
-                    imagettftext($weizan_92, 22, 0, 25 + $weizan_111 + 10, 780, $weizan_105, $weizan_91, $weizan_115);
+                if ($goods['productprice'] > 0){
+                    $weizan_115 = '￥' . number_format($goods['productprice'], 2);
+                    imagettftext($image_tmp, 22, 0, 25 + $weizan_111 + 10, $price_y, $weizan_105, $font, $weizan_115);
                     $weizan_116 = 25 + $weizan_111 + 10;
-                    $weizan_110 = imagettfbbox(22, 0, $weizan_91, $weizan_115);
+                    $weizan_110 = imagettfbbox(22, 0, $font, $weizan_115);
                     $weizan_111 = $weizan_110[4] - $weizan_110[6];
-                    imageline($weizan_92, $weizan_116, 770, $weizan_116 + $weizan_111 + 20, 770, $weizan_105);
-                    imageline($weizan_92, $weizan_116, 771.5, $weizan_116 + $weizan_111 + 20, 771, $weizan_105);
+                    imageline($image_tmp, $weizan_116, $price_y-10, $weizan_116 + $weizan_111 + 20, $price_y-10, $weizan_105);
+                    imageline($image_tmp, $weizan_116, $price_y-8.5,$weizan_116 + $weizan_111 + 20, $price_y-9,$weizan_105);
                 }
-                imagejpeg($weizan_92, $weizan_81 . $weizan_83);
-                imagedestroy($weizan_92);
+                imagejpeg($image_tmp, $image_dir . $img_file_name);
+                imagedestroy($image_tmp);
             }
-            return $_W['siteroot'] . 'addons/ewei_shop/data/poster/' . $_W['uniacid'] . '/' . $weizan_83;
+            return $_W['siteroot'] . 'addons/ewei_shop/data/poster/' . $_W['uniacid'] . '/' . $img_file_name;
         }
         public function createShopImage($weizan_86){
             global $_W, $_GPC;
