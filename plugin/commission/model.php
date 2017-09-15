@@ -644,11 +644,14 @@ if (!class_exists('CommissionModel')){
                 $weizan_106 = imagecolorallocate($image_tmp, 255, 255, 0);
                 $weizan_107 = '我是';
                 $ttf_result = imagettftext($image_tmp, 20, 0, 150, 70, $weizan_103, $font, $weizan_107);
-                if(!$ttf_result)
-                {
-                    echo $font.$ttf_result;
+               
+                LOG::INFO('IMG'.$ttf_result);
+
+                $member_name = $shop_owner['nickname'];
+                if(empty($member_name)){
+                    $member_name = $shop_owner['realname'];
                 }
-                imagettftext($image_tmp, 20, 0, 210, 70, $weizan_104, $font, $shop_owner['nickname']);
+                imagettftext($image_tmp, 20, 0, 210, 70, $weizan_104, $font, $member_name);
                 $weizan_108 = '我要为';
                 imagettftext($image_tmp, 20, 0, 150, 105, $weizan_103, $font, $weizan_108);
                 $weizan_109 = $shop_set['name'];

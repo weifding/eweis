@@ -31,10 +31,10 @@ if ($_W['ispost']) {
             $_GPC['result'] = $_GPC['result'].$i.$order_lists[$i].'=='.$post_lists[$i];
         } */
 
-        $orders = pdo_fetchall("select * from " . tablename("ewei_shop_order") . " where  ordersn in (". implode(',', $order_lists).") and uniacid=:uniaci", array(":uniacid" => $_W["uniacid"]));
+        /*  $orders = pdo_fetchall("select * from " . tablename("ewei_shop_order") . " where  ordersn in (". implode(',', $order_lists).") and uniacid=:uniaci", array(":uniacid" => $_W["uniacid"]));
         $_GPC['result'] = print_r($orders, true);
 
-        for ($i=0; $i < count($order_lists); $i++) {
+       for ($i=0; $i < count($order_lists); $i++) {
             $ordersn = $order_lists[$i];
             $expresssn = $post_lists[$i];
             $express = '';
@@ -45,22 +45,22 @@ if ($_W['ispost']) {
             ), array(
                 "uniacid" => $_W["uniacid"],
                 "ordersn" => $order_lists[$i]
-            ));
-        }
+            )); 
+        }*/
     } else {
-        $orders = pdo_fetchall("select * from " . tablename("ewei_shop_order") . " where  ordersn in (". implode(',', $order_lists).") and uniacid=:uniacid", array(":uniacid" => $_W["uniacid"]));
+       /*  $orders = pdo_fetchall("select * from " . tablename("ewei_shop_order") . " where  ordersn in (". implode(',', $order_lists).") and uniacid=:uniacid", array(":uniacid" => $_W["uniacid"]));
     
 
         $num = count($order_lists);
         for ($i=0; $i < $num; $i++) {
             $_GPC['result'] = $_GPC['result']. $order_lists[$i].'='.$post_lists[$i].'\r\n';
-        }
+        } */
     }
     $_GPC['order_lists'] = $order_list_text;
     $_GPC['post_lists'] = $post_list_text;
 }
 
-
+$_GPC['result'] = '功能未开放---丁';
 
 load()->func('tpl');
 include $this->template('web/express/batchadd');
