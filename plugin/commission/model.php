@@ -582,6 +582,96 @@ if (!class_exists('CommissionModel')){
             $weizan_85 = ihttp_request($weizan_82);
             return imagecreatefromstring($weizan_85['content']);
         }
+
+        /**
+        * 文字自动换行算法
+        * @param $card 画板
+        * @param $pos 数组，top距离画板顶端的距离，fontsize文字的大小，width宽度，left距离左边的距离，hang_size行高
+        * @param $str 要写的字符串
+        * @param $iswrite  是否输出，ture，  花出文字，false只计算占用的高度
+        * @return int 返回整个字符所占用的高度
+        */
+        private function draw_txt_to($card, $pos, $str,$font_file, $iswrite)
+        {
+        
+            $_str_h = $pos["top"];
+            $fontsize = $pos["fontsize"];
+            $width = $pos["width"];
+            $margin_lift = $pos["left"];
+            $hang_size = $pos["hang_size"];
+            $temp_string = "";
+            $font_color = imagecolorallocate($card, $pos["color"][0], $pos["color"][1], $pos["color"][2]);
+            $tp = 0;
+            LOG::INFO('IMG1');
+            for ($i = 0; $i < mb_strlen($str); $i++) {
+                LOG::INFO('IMG2');
+                $box = imagettfbbox($fontsize, 0, $font_file, $temp_string);
+                $_string_length = $box[2] - $box[0];
+                $temptext = mb_substr($str, $i, 1);
+                $temp = imagettfbbox($fontsize, 0, $font_file, $temptext);
+        
+                if ($_string_length + $temp[2] - $temp[0] < $width) {//长度不够，字数不够，需要继续拼接字符串。
+                     $temp_string .= mb_substr($str, $i, 1);
+        
+                    if ($i == mb_strlen($str) - 1) {//是不是最后半行。不满一行的情况
+                        $_str_h += $hang_size;//计算整个文字换行后的高度。
+                        $tp++;//行数
+                        if ($iswrite) {//是否需要写入，核心绘制函数
+                            imagettftext($card, $fontsize, 0, $margin_lift, $_str_h, $font_color, $font_file, $temp_string);
+                        }
+                     }
+                }
+                else {//一行的字数够了，长度够了。打印输出，对字符串零时字符串置null
+                    $texts = mb_substr($str, $i, 1);//零时行的开头第一个字。判断默认第一个字符是不是符号；
+                    $isfuhao = preg_match("/[\\\\pP]/u", $texts) ? true : false;//一行的开头这个字符，是不是标点符号
+                    if ($isfuhao) {//如果是标点符号，则添加在第一行的结尾
+                        $temp_string .= $texts;
+        
+                    //  判断如果是连续两个字符出现，并且两个丢失必须放在句末尾的，单独处理
+                        $f = mb_substr($str, $i + 1, 1);
+                        $fh = preg_match("/[\\\\pP]/u", $f) ? true : false;
+                        if ($fh) {
+                            $temp_string .= $f;
+                            $i++;
+                        }
+        
+                    } else {
+                        $i--;
+                    }
+        
+                    $tmp_str_len = mb_strlen($temp_string);
+                    $s = mb_substr($temp_string, $tmp_str_len-1, 1);//取零时字符串最后一位字符
+        
+                        if ($this->is_firstfuhao($s)) {//判断零时字符串的最后一个字符是不是可以放在见面讲最后一个字符用“_”代替。指针前移动一位。重新取被替换的字符。
+                            $temp_string=rtrim($temp_string,$s);
+                            $i--;
+                        }
+      
+        
+                // 计算行高，和行数。
+                    $_str_h += $hang_size;
+                    $tp++;
+                    if ($iswrite) {
+        
+                        imagettftext($card, $fontsize, 0, $margin_lift, $_str_h, $font_color, $font_file, $temp_string);
+                    }
+                //  写完了改行，置null该行的临时字符串。
+                    $temp_string = "";
+                }
+            }
+            LOG::INFO('IMG'.$tp * $hang_size);
+            return $tp * $hang_size;
+        
+        }
+        
+        
+        private function is_firstfuhao($str)
+        {
+            $fuhaos = array('\\"', '“', "'", "<", "《");
+            return in_array($str, $fuhaos);
+        }
+        
+     
        
         public function createGoodsImage($goods, $shop_set){
             global $_W, $_GPC;
@@ -662,16 +752,17 @@ if (!class_exists('CommissionModel')){
                 imagettftext($image_tmp, 20, 0, 240 + $weizan_111 + 10, 105, $weizan_103, $font, $weizan_112);
 
                 //绘制标题
-                $title1 = mb_substr($goods['title'], 0, 25, 'utf-8');
-                imagettftext($image_tmp, 20, 0, 30, 720, $weizan_105, $font, $title1);
-                $title2 = mb_substr($goods['title'], 26, NULL, 'utf-8');
-                imagettftext($image_tmp, 20, 0, 10, 760, $weizan_105, $font, $title2);
-                LOG::INFO('IMG'.$goods['title']);
-                LOG::INFO('IMG'.$title1);
-                LOG::INFO('IMG'.$title2);
-                LOG::INFO('IMG'.mb_strlen($title1,'utf-8'));
-              
-                
+                $temp = array("color" => array(255,255, 255), "fontsize" =>20, "width" => 620, "left" => 20, "top" => 680, "hang_size" => 40);
+                try {
+                    LOG::INFO('IMG'.$goods['title']);
+                    $this->draw_txt_to($image_tmp,$temp,$goods['title'],$font,true );
+                } catch (Exception $e) {
+                    LOG::INFO('IMG Caught exception: '. $e->getMessage());
+                }finally {
+                    LOG::INFO('IMG finally');
+                }
+
+         
                 //价格
                 $price_y = 820;
                 $weizan_114 = '￥' . number_format($goods['marketprice'], 2);
