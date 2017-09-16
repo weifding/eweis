@@ -694,8 +694,7 @@ if (!class_exists('CommissionModel')){
             $thumb_img_info = empty($goods['commission_thumb']) ? $goods['thumb'] : tomedia($goods['commission_thumb']);
             $file_name = md5(json_encode(array('id' => $goods['id'], 'marketprice' => $goods['marketprice'], 'productprice' => $goods['productprice'], 'img' => $thumb_img_info, 'openid' => $openid, 'version' => 4)));
             $img_file_name = $file_name . '.jpg';
-            //if (!is_file($image_dir . $img_file_name)){
-            if (true){
+            if(!is_file($image_dir . $img_file_name)){
                 set_time_limit(0);
                 $font = IA_ROOT . '/addons/ewei_shop/static/fonts/msyh.ttf';
                 $image_tmp = imagecreatetruecolor(640, 1225);

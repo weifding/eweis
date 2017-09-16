@@ -36,10 +36,46 @@ $shop = set_medias(
     )
 );
 
+LOG::INFO('REG'.$shop['logo']);
+
+$avatar_dir = IA_ROOT . '/attachment/images/'.$_W["uniacid"].'/'.'avatar/';
+if (!is_dir($avatar_dir)){
+    load() -> func('file');
+    mkdirs($avatar_dir);
+}
+$avatar_file = $member['id'].'.jpg';
+$logo_url = $shop['logo'];
+if(!is_file($avatar_dir.$avatar_file)){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $shop['logo']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    // 保存文件到制定路径
+    file_put_contents($avatar_dir.$avatar_file, $output);
+    unset($output);
+    LOG::INFO('REG:Save'.$avatar_dir.$avatar_file);
+    $logo_url = 'http://www.bellmu.com/attachment/images/'.$_W["uniacid"].'/'.'avatar/'.$avatar_file;
+}
+else{
+    $logo_url = 'http://www.bellmu.com/attachment/images/'.$_W["uniacid"].'/'.'avatar/'.$avatar_file;
+    //需要修正
+}
+LOG::INFO('REG'.$logo_url);
+
+
+$my_name = $member['nickname'];
+if(empty($member['nickname'])){
+    $my_name = $member['realname'];
+}
+
+
+
 $_W['shopshare'] = array(
     'title' => '邀请成为分销商',
-    'imgUrl' => $shop['logo'],
-    'desc' => $member['nickname'].'真诚邀请您加入',
+    'imgUrl' => $logo_url,
+    'desc' => $my_name.'真诚邀请您加入!',
     'link' => $this->createPluginMobileUrl('commission/register', array('mid' => $member['id']))
 );
 
