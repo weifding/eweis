@@ -13,14 +13,6 @@ require_once EWEI_SHOP_INC.'functions.php';
 require_once EWEI_SHOP_INC.'core.php';
 require_once EWEI_SHOP_INC.'plugin/plugin.php';
 require_once EWEI_SHOP_INC.'plugin/plugin_model.php';
-//print(IA_ROOT .'/log.php');
-//require_once IA_ROOT .'/log.php';
-//date_default_timezone_set('Asia/Shanghai');
-//$logHandler = new CLogFileHandler(IA_ROOT .'/mylogs/shop.log');
-//$log = Log::Init($logHandler,15);
-Log::INFO("My Food");
-
-
 
 //插件的入口函数
 class Ewei_shopModuleSite extends Core { 

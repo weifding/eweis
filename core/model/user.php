@@ -61,11 +61,12 @@ class Ewei_DShop_User{
         }
         return $weizan_3;
     }
+    
     function getInfo($weizan_17 = false, $weizan_18 = false){
         global $_W, $_GPC;
         $weizan_0 = array();
         if (EWEI_SHOP_DEBUG){
-			$weizan_0 = array('openid' => 'o9NSQt-C6M33iau0Cz-cBpsGlBJI', 'nickname' => '微赞科技', 'headimgurl' => 'http://ifonyo.com/static/image/common/logo.png', 'province' => '广东', 'city' => '深圳');
+		$weizan_0 = array('openid' => 'o9NSQt-C6M33iau0Cz-cBpsGlBJI', 'nickname' => '微赞科技', 'headimgurl' => 'http://ifonyo.com/static/image/common/logo.png', 'province' => '广东', 'city' => '深圳');
         }else{
             load() -> model('mc');
             if (empty($_GPC['directopenid'])){

@@ -2,6 +2,7 @@
 if (!defined('IN_IA')) {
     exit('Access Denied');
 }
+
 class Ewei_DShop_Common
 {
     public function getSetData($uniacid = 0)

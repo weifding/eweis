@@ -1295,9 +1295,9 @@ function sortByTime($val1204, $val1205)
 function getList($companyid, $posterid)
 {
     $str = file_get_contents(EWEI_SHOP_PATH.'/data/sf.json');
-    LOG::INFO('EX:data'.EWEI_SHOP_PATH.'/data/sf.json');
+    //LOG::INFO('EX:data'.EWEI_SHOP_PATH.'/data/sf.json');
     $json = json_decode($str, true);
-    LOG::INFO('EX:1'.$companyid);
+    //LOG::INFO('EX:1'.$companyid);
     //参数设置
     $post_data = array();
     $post_data["customer"] = $json['customer'] ;
@@ -1325,7 +1325,7 @@ function getList($companyid, $posterid)
     $data = str_replace("\&quot;",'"',$result);
     $data = json_decode($data,true);
     $printr = print_r($data, true);
-    LOG::INFO('EX:1'.$printr);
+    //LOG::INFO('EX:1'.$printr);
 
     return $data['data'];
 }

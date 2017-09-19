@@ -36,7 +36,7 @@ $shop = set_medias(
     )
 );
 
-LOG::INFO('REG'.$shop['logo']);
+//LOG::INFO('REG'.$shop['logo']);
 
 $avatar_dir = IA_ROOT . '/attachment/images/'.$_W["uniacid"].'/'.'avatar/';
 if (!is_dir($avatar_dir)){
@@ -55,14 +55,14 @@ if(!is_file($avatar_dir.$avatar_file)){
     // 保存文件到制定路径
     file_put_contents($avatar_dir.$avatar_file, $output);
     unset($output);
-    LOG::INFO('REG:Save'.$avatar_dir.$avatar_file);
+    //LOG::INFO('REG:Save'.$avatar_dir.$avatar_file);
     $logo_url = 'http://www.bellmu.com/attachment/images/'.$_W["uniacid"].'/'.'avatar/'.$avatar_file;
 }
 else{
     $logo_url = 'http://www.bellmu.com/attachment/images/'.$_W["uniacid"].'/'.'avatar/'.$avatar_file;
     //需要修正
 }
-LOG::INFO('REG'.$logo_url);
+//LOG::INFO('REG'.$logo_url);
 
 
 $my_name = $member['nickname'];

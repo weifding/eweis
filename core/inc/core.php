@@ -338,3 +338,5 @@ class Core extends WeModuleSite
         return $this->createMobileUrl('shop');
     }
 }
+
+

@@ -23,15 +23,15 @@ $log = 'MyShop:';
     exit;
 }
 
-    LOG::INFO($log.'s='.$stop);
+    //LOG::INFO($log.'s='.$stop);
 
 if (!empty($mid) && $stop==0) {
-    LOG::INFO($log.$mid.':'.$member['id']);
+    //LOG::INFO($log.$mid.':'.$member['id']);
     //member是代理商
     if ($this->model->isAgent($member)) {
         $agent_info = $member;
         $agent_link_lv = $this->model->getAgentLinkLV($agent_info);
-        LOG::INFO($log.$agent_link_lv);
+        //LOG::INFO($log.$agent_link_lv);
         if ($agent_link_lv>=1) {
             //二级代理商已经按专属用户处理，永不显示个人小店
             $agent_info = null;
@@ -42,7 +42,7 @@ if (!empty($mid) && $stop==0) {
     if ($this->model->isAgent($mid)) {
         $agent_info = m('member')->getMember($mid);
         $agent_link_lv = $this->model->getAgentLinkLV($agent_info);
-        LOG::INFO($log.$agent_link_lv);
+        //LOG::INFO($log.$agent_link_lv);
         if ($agent_link_lv>=1) {
             //二级代理商已经按专属用户处理，永不显示个人小店
             $agent_info = null;
@@ -62,7 +62,7 @@ if (!empty($mid) && $stop==0) {
             $shopurl = $this->createPluginMobileUrl('commission/myshop', array('mid' => $agent_info['id'],'s'=>1));
         }
         header('location: ' . $shopurl);
-        LOG::INFO($log.'代理商');
+        //LOG::INFO($log.'代理商');
         exit;
     }
 } */
@@ -131,7 +131,7 @@ if (!empty($mid)) {
     );
 
 
-    LOG::INFO($log.'op='.$_GPC['op']);
+    //LOG::INFO($log.'op='.$_GPC['op']);
     $op   = empty($_GPC['op']) ? 'display' : $_GPC['op'];
     if ($op == 'display') {
         if ($_W['isajax']) {
@@ -190,10 +190,10 @@ if (!empty($mid)) {
             'order' => 'displayorder desc,createtime desc',
             'by' => ''
             );
-            LOG::INFO($log.'select goods');
+            //LOG::INFO($log.'select goods');
             if (!empty($shop['selectgoods'])) {
                     $goodsids = explode(',', $shop['goodsids']);
-                    LOG::INFO($log.$goodsids);
+                    //LOG::INFO($log.$goodsids);
                 if (!empty($goodsids)) {
                     $args['ids'] = trim($shop['goodsids']);
                 }

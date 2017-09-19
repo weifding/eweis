@@ -602,9 +602,9 @@ if (!class_exists('CommissionModel')){
             $temp_string = "";
             $font_color = imagecolorallocate($card, $pos["color"][0], $pos["color"][1], $pos["color"][2]);
             $tp = 0;
-            LOG::INFO('IMG1');
+            //LOG::INFO('IMG1');
             for ($i = 0; $i < mb_strlen($str); $i++) {
-                LOG::INFO('IMG2');
+                //LOG::INFO('IMG2');
                 $box = imagettfbbox($fontsize, 0, $font_file, $temp_string);
                 $_string_length = $box[2] - $box[0];
                 $temptext = mb_substr($str, $i, 1);
@@ -659,7 +659,7 @@ if (!class_exists('CommissionModel')){
                     $temp_string = "";
                 }
             }
-            LOG::INFO('IMG'.$tp * $hang_size);
+            //LOG::INFO('IMG'.$tp * $hang_size);
             return $tp * $hang_size;
         
         }
@@ -734,7 +734,7 @@ if (!class_exists('CommissionModel')){
                 $weizan_107 = '我是';
                 $ttf_result = imagettftext($image_tmp, 20, 0, 150, 70, $weizan_103, $font, $weizan_107);
                
-                LOG::INFO('IMG'.$ttf_result);
+                //LOG::INFO('IMG'.$ttf_result);
 
                 $member_name = $shop_owner['nickname'];
                 if(empty($member_name)){
@@ -753,12 +753,12 @@ if (!class_exists('CommissionModel')){
                 //绘制标题
                 $temp = array("color" => array(255,255, 255), "fontsize" =>20, "width" => 620, "left" => 20, "top" => 680, "hang_size" => 40);
                 try {
-                    LOG::INFO('IMG'.$goods['title']);
+                    //LOG::INFO('IMG'.$goods['title']);
                     $this->draw_txt_to($image_tmp,$temp,$goods['title'],$font,true );
                 } catch (Exception $e) {
-                    LOG::INFO('IMG Caught exception: '. $e->getMessage());
+                    //LOG::INFO('IMG Caught exception: '. $e->getMessage());
                 }finally {
-                    LOG::INFO('IMG finally');
+                    //LOG::INFO('IMG finally');
                 }
 
          
@@ -1410,7 +1410,7 @@ if (!class_exists('CommissionModel')){
                 return 0;
             }
             foreach ($agent_lists as $info){
-                LOG::INFO('MyShop'.$info['id']);
+                //LOG::INFO('MyShop'.$info['id']);
             }
             return count($agent_lists);
 
