@@ -14,14 +14,28 @@ class Ewei_DShop_User{
         $this->log = Logger::getLogger(__CLASS__);
 
     }
+
+    private function emoji_encode($nickname){
+        $strEncode = '';
+        $length = mb_strlen($nickname,'utf-8');
+        for ($i=0; $i < $length; $i++) {
+            $_tmpStr = mb_substr($nickname,$i,1,'utf-8');
+            if(strlen($_tmpStr) >= 4){
+                //$strEncode .= '[[EMOJI:'.rawurlencode($_tmpStr).']]';
+            }else{
+                $strEncode .= $_tmpStr;
+            }
+        }
+        return $strEncode;
+    }
+
     function getOpenid(){
         $weizan_0 = $this -> getInfo(false, true);
         $tmp = print_r($weizan_0,true);
         $this->log->info($weizan_0['nickname'] );
         $this->log->info($tmp);
-
-       
-        $first_name =  preg_replace("#(\\\ud[0-9a-f]{3})|(\\\ue[0-9a-f]{3})#ie","",$weizan_0['nickname']); 
+      
+        $first_name =  $this->emoji_encode($weizan_0['nickname']); 
         $this->log->info($first_name);
 
         return $weizan_0['openid'];
