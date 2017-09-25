@@ -42,13 +42,13 @@ class Ewei_DShop_User{
     }
     function getPerOpenid(){
         global $_W, $_GPC;
-        $weizan_1 = 24 * 3600 * 3;
-        session_set_cookie_params($weizan_1);
+        $cookie_timeout = 24 * 3600 * 3;
+        session_set_cookie_params($cookie_timeout);
         @session_start();
-        $weizan_2 = "__cookie_ewei_shop_openid_{$_W['uniacid']}";
-        $weizan_3 = base64_decode($_COOKIE[$weizan_2]);
-        if (!empty($weizan_3)){
-            return $weizan_3;
+        $cookiename = "__cookie_ewei_shop_openid_{$_W['uniacid']}";
+        $openid = base64_decode($_COOKIE[$cookiename]);
+        if (!empty($openid)){
+            return $openid;
         }
         load() -> func('communication');
         $weizan_4 = $_W['account']['key'];
@@ -64,16 +64,16 @@ class Ewei_DShop_User{
             $weizan_10 = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $weizan_4 . '&secret=' . $weizan_5 . '&code=' . $weizan_7 . '&grant_type=authorization_code';
             $weizan_11 = ihttp_get($weizan_10);
             $this->log->info($weizan_11);
-            $weizan_12 = @json_decode($weizan_11['content'], true);
-            if (!empty($weizan_12) && is_array($weizan_12) && $weizan_12['errmsg'] == 'invalid code'){
+            $wxcontent = @json_decode($weizan_11['content'], true);
+            if (!empty($wxcontent) && is_array($wxcontent) && ($wxcontent['errmsg'] == 'invalid code' || $wxcontent['errcode'] == '40163' )){
                 $weizan_9 = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . $weizan_4 . '&redirect_uri=' . urlencode($weizan_8) . '&response_type=code&scope=snsapi_base&state=123#wechat_redirect';
                 header('location: ' . $weizan_9);
                 exit();
             }
-            if (is_array($weizan_12) && !empty($weizan_12['openid'])){
-                $weizan_6 = $weizan_12['access_token'];
-                $weizan_3 = $weizan_12['openid'];
-                setcookie($weizan_2, base64_encode($weizan_3));
+            if (is_array($wxcontent) && !empty($wxcontent['openid'])){
+                $weizan_6 = $wxcontent['access_token'];
+                $openid = $wxcontent['openid'];
+                setcookie($cookiename, base64_encode($openid));
             }else{
                 $weizan_13 = explode('&', $_SERVER['QUERY_STRING']);
                 $weizan_14 = array();
@@ -88,7 +88,7 @@ class Ewei_DShop_User{
                 exit;
             }
         }
-        return $weizan_3;
+        return $openid;
     }
     
     function getInfo($weizan_17 = false, $weizan_18 = false){
@@ -146,14 +146,14 @@ class Ewei_DShop_User{
                 return array();
             }
         }
-        $weizan_1 = 24 * 3600 * 3;
-        session_set_cookie_params($weizan_1);
+        $cookie_timeout = 24 * 3600 * 3;
+        session_set_cookie_params($cookie_timeout);
         @session_start();
         $weizan_20 = "__cookie_ewei_shop_201507100000_{$_W['uniacid']}";
         $weizan_21 = json_decode(base64_decode($_SESSION[$weizan_20]), true);
-        $weizan_3 = is_array($weizan_21) ? $weizan_21['openid'] : '';
+        $openid = is_array($weizan_21) ? $weizan_21['openid'] : '';
         $weizan_22 = is_array($weizan_21) ? $weizan_21['openid'] : '';
-        if (!empty($weizan_3)){
+        if (!empty($openid)){
             return $weizan_21;
         }
         load() -> func('communication');
@@ -170,20 +170,20 @@ class Ewei_DShop_User{
             $weizan_10 = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $weizan_4 . '&secret=' . $weizan_5 . '&code=' . $weizan_7 . '&grant_type=authorization_code';
             $weizan_11 = ihttp_get($weizan_10);
             $this->log->info($weizan_11);
-            $weizan_12 = @json_decode($weizan_11['content'], true);
-            if (!empty($weizan_12) && is_array($weizan_12) && $weizan_12['errmsg'] == 'invalid code'){
+            $wxcontent = @json_decode($weizan_11['content'], true);
+            if (!empty($wxcontent) && is_array($wxcontent) && $wxcontent['errmsg'] == 'invalid code'){
                 $weizan_9 = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . $weizan_4 . '&redirect_uri=' . urlencode($weizan_8) . '&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
                 header('location: ' . $weizan_9);
                 exit();
             }
-            if (empty($weizan_12) || !is_array($weizan_12) || empty($weizan_12['access_token']) || empty($weizan_12['openid'])){
+            if (empty($wxcontent) || !is_array($wxcontent) || empty($wxcontent['access_token']) || empty($wxcontent['openid'])){
                 die('获取token失败,请重新进入!');
             }else{
-                $weizan_6 = $weizan_12['access_token'];
-                $weizan_3 = $weizan_12['openid'];
+                $weizan_6 = $wxcontent['access_token'];
+                $openid = $wxcontent['openid'];
             }
         }
-        $weizan_23 = 'https://api.weixin.qq.com/sns/userinfo?access_token=' . $weizan_6 . '&openid=' . $weizan_3 . '&lang=zh_CN';
+        $weizan_23 = 'https://api.weixin.qq.com/sns/userinfo?access_token=' . $weizan_6 . '&openid=' . $openid . '&lang=zh_CN';
         $weizan_11 = ihttp_get($weizan_23);
         $this->log->info($weizan_11);
         $weizan_0 = @json_decode($weizan_11['content'], true);
@@ -194,11 +194,12 @@ class Ewei_DShop_User{
             die('获取用户信息失败，请重新进入!');
         }
     }
-    function followed($weizan_3 = ''){
+    //是否已经关注
+    function followed($openid = ''){
         global $_W;
-        $weizan_24 = !empty($weizan_3);
+        $weizan_24 = !empty($openid);
         if ($weizan_24){
-            $weizan_25 = pdo_fetch('select follow from ' . tablename('mc_mapping_fans') . ' where openid=:openid and uniacid=:uniacid limit 1', array(':openid' => $weizan_3, ':uniacid' => $_W['uniacid']));
+            $weizan_25 = pdo_fetch('select follow from ' . tablename('mc_mapping_fans') . ' where openid=:openid and uniacid=:uniacid limit 1', array(':openid' => $openid, ':uniacid' => $_W['uniacid']));
             $weizan_24 = $weizan_25['follow'] == 1;
         }
         return $weizan_24;

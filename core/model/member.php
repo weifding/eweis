@@ -4,11 +4,21 @@
 if (!defined('IN_IA')) {
     exit('Access Denied');
 }
+
+require_once  IA_ROOT.'/framework/library/log4php/Logger.php';
+Logger::configure(IA_ROOT.'/log4php.properties');
+
 class Ewei_DShop_Member
 {
+    private $log;
+    public function __construct(){
+        $this->log = Logger::getLogger(__CLASS__);
+    }
+
     public function getInfo($openid = '')
     {
         global $_W;
+        
         $uid = intval($openid);
         if ($uid == 0) {
             $info = pdo_fetch('select * from ' . tablename('ewei_shop_member') . ' where openid=:openid and uniacid=:uniacid limit 1', array(
@@ -242,6 +252,7 @@ class Ewei_DShop_Member
                 'createtime' => time(),
                 'status' => 0
             );
+
             pdo_insert('ewei_shop_member', $member);
         } else {
             if ($member['isblack'] == 1) {
