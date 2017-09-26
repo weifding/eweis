@@ -31,9 +31,9 @@ class Ewei_DShop_User{
 
     function getOpenid(){
         $weizan_0 = $this -> getInfo(false, true);
-        $tmp = print_r($weizan_0,true);
-        $this->log->info($weizan_0['nickname'] );
-        $this->log->info($tmp);
+       
+        $this->log->info($weizan_0);
+
       
         $first_name =  $this->emoji_encode($weizan_0['nickname']); 
         $this->log->info($first_name);
@@ -42,6 +42,7 @@ class Ewei_DShop_User{
     }
     function getPerOpenid(){
         global $_W, $_GPC;
+        
         $cookie_timeout = 24 * 3600 * 3;
         session_set_cookie_params($cookie_timeout);
         @session_start();
@@ -54,22 +55,28 @@ class Ewei_DShop_User{
         $weizan_4 = $_W['account']['key'];
         $weizan_5 = $_W['account']['secret'];
         $weizan_6 = "";
-        $weizan_7 = $_GPC['code'];
+        $wxauth_code = $_GPC['code'];
         $weizan_8 = $_W['siteroot'] . 'app/index.php?' . $_SERVER['QUERY_STRING'];
-        if (empty($weizan_7)){
+        if (empty($wxauth_code)){
             $weizan_9 = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . $weizan_4 . '&redirect_uri=' . urlencode($weizan_8) . '&response_type=code&scope=snsapi_base&state=123#wechat_redirect';
             header('location: ' . $weizan_9);
             exit();
         }else{
-            $weizan_10 = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $weizan_4 . '&secret=' . $weizan_5 . '&code=' . $weizan_7 . '&grant_type=authorization_code';
+            if(!empty($_SESSION['40163'])){
+                $this->log->info('重复callback'.$wxauth_code);
+                exit();      
+            }
+            $_SESSION['40163'] = $wxauth_code;
+            $weizan_10 = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $weizan_4 . '&secret=' . $weizan_5 . '&code=' . $wxauth_code . '&grant_type=authorization_code';
             $weizan_11 = ihttp_get($weizan_10);
             $this->log->info($weizan_11);
             $wxcontent = @json_decode($weizan_11['content'], true);
-            if (!empty($wxcontent) && is_array($wxcontent) && ($wxcontent['errmsg'] == 'invalid code' || $wxcontent['errcode'] == '40163' )){
+            if (!empty($wxcontent) && is_array($wxcontent) && ($wxcontent['errmsg'] == 'invalid code' )){
                 $weizan_9 = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . $weizan_4 . '&redirect_uri=' . urlencode($weizan_8) . '&response_type=code&scope=snsapi_base&state=123#wechat_redirect';
                 header('location: ' . $weizan_9);
                 exit();
             }
+            
             if (is_array($wxcontent) && !empty($wxcontent['openid'])){
                 $weizan_6 = $wxcontent['access_token'];
                 $openid = $wxcontent['openid'];
@@ -92,17 +99,22 @@ class Ewei_DShop_User{
     }
     
     function getInfo($weizan_17 = false, $weizan_18 = false){
+
+        $this->log->info($_SERVER['QUERY_STRING']);
+        
         global $_W, $_GPC;
         $weizan_0 = array();
         if (EWEI_SHOP_DEBUG){
 		$weizan_0 = array('openid' => 'o9NSQt-C6M33iau0Cz-cBpsGlBJI', 'nickname' => '微赞科技', 'headimgurl' => 'http://ifonyo.com/static/image/common/logo.png', 'province' => '广东', 'city' => '深圳');
         }else{
             load() -> model('mc');
-            if (empty($_GPC['directopenid'])){
+          if (empty($_GPC['directopenid'])){
                 $weizan_0 = mc_oauth_userinfo();
             }else{
                 $weizan_0 = array('openid' => $this -> getPerOpenid());
-            }
+            } 
+
+            //$weizan_0 = mc_oauth_userinfo();
             $weizan_19 = true;
             if ($_W['container'] != 'wechat'){
                 if($_GPC['do'] == 'order' && $_GPC['p'] == 'pay'){
@@ -131,8 +143,8 @@ class Ewei_DShop_User{
         if ($weizan_17){
             return urlencode(base64_encode(json_encode($weizan_0)));
         }
-        $tmp = print_r($weizan_0,true);
-        $this->log->info($tmp);
+    
+        $this->log->info($weizan_0);
 
         return $weizan_0;
     }
@@ -160,14 +172,19 @@ class Ewei_DShop_User{
         $weizan_4 = $_W['account']['key'];
         $weizan_5 = $_W['account']['secret'];
         $weizan_6 = "";
-        $weizan_7 = $_GPC['code'];
+        $wxauth_code = $_GPC['code'];
         $weizan_8 = $_W['siteroot'] . 'app/index.php?' . $_SERVER['QUERY_STRING'];
-        if (empty($weizan_7)){
+        if (empty($wxauth_code)){
             $weizan_9 = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' . $weizan_4 . '&redirect_uri=' . urlencode($weizan_8) . '&response_type=code&scope=snsapi_userinfo&state=123#wechat_redirect';
             header('location: ' . $weizan_9);
             exit();
         }else{
-            $weizan_10 = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $weizan_4 . '&secret=' . $weizan_5 . '&code=' . $weizan_7 . '&grant_type=authorization_code';
+            if(!empty($_SESSION['40163'])){
+                $this->log->info('重复callback'.$wxauth_code);
+                exit();      
+            }
+            $_SESSION['40163'] = $wxauth_code;
+            $weizan_10 = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' . $weizan_4 . '&secret=' . $weizan_5 . '&code=' . $wxauth_code . '&grant_type=authorization_code';
             $weizan_11 = ihttp_get($weizan_10);
             $this->log->info($weizan_11);
             $wxcontent = @json_decode($weizan_11['content'], true);

@@ -252,7 +252,7 @@ class Ewei_DShop_Member
                 'createtime' => time(),
                 'status' => 0
             );
-
+            $this->log->info($member);
             pdo_insert('ewei_shop_member', $member);
         } else {
             if ($member['isblack'] == 1) {
@@ -274,7 +274,10 @@ class Ewei_DShop_Member
             if ($userinfo['avatar'] != $member['avatar'] && !empty($userinfo['avatar'])) {
                 $upgrade['avatar'] = $userinfo['avatar'];
             }
+            $this->log->info('ewei_shop_member update'.$member['id']);
+            $this->log->info($userinfo);
             if (!empty($upgrade)) {
+                 $this->log->info($upgrade);
                 pdo_update('ewei_shop_member', $upgrade, array(
                     'id' => $member['id']
                 ));
